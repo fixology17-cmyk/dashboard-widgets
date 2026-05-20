@@ -3,340 +3,850 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+  :root {
+    --bg: #f8f9fb;
+    --card: #ffffff;
+    --text: #1b1f27;
+    --text2: #5f6980;
+    --text3: #9aa3b4;
+    --border: #e8ecf2;
+    --accent: #4f6ef7;
+    --accent-light: #eef1fe;
+    --green: #22c55e;
+    --green-bg: #ecfdf5;
+    --red: #ef4444;
+    --red-bg: #fef2f2;
+    --amber: #f59e0b;
+    --amber-bg: #fffbeb;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-lg: 0 4px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'DM Sans', sans-serif;
-    background: #ffffff;
-    color: #1a1a2e;
-    padding: 20px;
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+    -webkit-font-smoothing: antialiased;
   }
 
-  .widget-header {
+  /* ===== HEADER ===== */
+  .header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+    align-items: flex-start;
+    margin-bottom: 24px;
   }
-
-  .widget-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a1a2e;
+  .header-left h1 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: var(--text);
   }
-
-  .widget-subtitle {
-    font-size: 12px;
-    color: #8892a4;
-    margin-top: 2px;
-  }
-
-  .total-badge {
-    background: #f0f4ff;
-    color: #4361ee;
+  .header-left p {
     font-size: 13px;
-    font-weight: 600;
+    color: var(--text3);
+    margin-top: 3px;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .badge {
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 700;
     padding: 6px 14px;
     border-radius: 20px;
+    white-space: nowrap;
+  }
+  .updated-badge {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text3);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
   }
 
-  .metrics-grid {
+  /* ===== SUMMARY CARDS ===== */
+  .summary-row {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 12px;
     margin-bottom: 20px;
   }
-
-  .metric-card {
-    background: #f8f9fc;
-    border-radius: 12px;
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     padding: 16px;
     text-align: center;
-    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: var(--shadow);
+    transition: transform 0.15s, box-shadow 0.15s;
   }
-
-  .metric-card:hover {
+  .summary-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-lg);
   }
-
-  .metric-label {
+  .summary-card .label {
     font-size: 11px;
     font-weight: 600;
+    color: var(--text3);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #8892a4;
-    margin-bottom: 8px;
+    letter-spacing: 0.6px;
+    margin-bottom: 6px;
   }
-
-  .metric-value {
-    font-size: 32px;
-    font-weight: 700;
+  .summary-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--text);
     line-height: 1;
   }
-
-  .metric-total {
+  .summary-card .value span {
     font-size: 14px;
-    font-weight: 400;
-    color: #8892a4;
+    font-weight: 500;
+    color: var(--text3);
   }
-
-  .metric-change {
-    font-size: 12px;
-    font-weight: 600;
-    margin-top: 6px;
+  .summary-card .sub {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 4px;
   }
-
-  .change-up { color: #10b981; }
-  .change-down { color: #ef4444; }
-  .change-tie { color: #8892a4; }
-
-  .bar-container {
-    background: #f0f4ff;
-    border-radius: 10px;
-    padding: 16px 20px;
+  .summary-card.accent {
+    background: var(--accent);
+    border-color: var(--accent);
   }
+  .summary-card.accent .label,
+  .summary-card.accent .value,
+  .summary-card.accent .value span,
+  .summary-card.accent .sub { color: #fff; }
 
+  /* ===== MOVEMENT BAR ===== */
+  .movement-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .movement-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    box-shadow: var(--shadow);
+    flex: 1;
+  }
+  .movement-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .movement-icon.up { background: var(--green-bg); color: var(--green); }
+  .movement-icon.down { background: var(--red-bg); color: var(--red); }
+  .movement-icon.same { background: #f3f4f6; color: var(--text3); }
+  .movement-text .mv-value { font-size: 18px; font-weight: 700; }
+  .movement-text .mv-label { font-size: 11px; color: var(--text3); }
+
+  /* ===== PROGRESS BARS ===== */
+  .progress-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+  .progress-section h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .bar-row { margin-bottom: 14px; }
+  .bar-row:last-child { margin-bottom: 0; }
   .bar-label-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
     font-size: 12px;
-    font-weight: 600;
-    color: #8892a4;
+    color: var(--text2);
+    margin-bottom: 6px;
+    font-weight: 500;
   }
-
+  .bar-label-row .pct { font-weight: 700; color: var(--text); }
   .bar-track {
+    background: #f0f2f5;
+    border-radius: 6px;
     height: 24px;
-    background: #e8ecf4;
-    border-radius: 12px;
-    overflow: hidden;
     position: relative;
+    overflow: hidden;
   }
-
   .bar-fill {
     height: 100%;
-    border-radius: 12px;
-    transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
-    position: relative;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    width: 0;
   }
-
-  .bar-fill-top1 { background: linear-gradient(90deg, #4361ee, #3a56d4); }
-  .bar-fill-top3 { background: linear-gradient(90deg, #4361ee, #6c83f5); }
-  .bar-fill-top5 { background: linear-gradient(90deg, #4361ee, #94a6f8); }
-
-  .bar-row {
-    margin-bottom: 10px;
-  }
-
-  .bar-row:last-child {
-    margin-bottom: 0;
-  }
-
-  .bar-percent {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
+  .bar-fill.top1 { background: linear-gradient(135deg, var(--accent), #7c3aed); }
+  .bar-fill.top3 { background: linear-gradient(135deg, #6366f1, #818cf8); }
+  .bar-fill.top5 { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+  .bar-fill.top10 { background: linear-gradient(135deg, #a78bfa, #c4b5fd); }
+  .bar-count {
     font-size: 11px;
     font-weight: 700;
-    color: white;
+    color: #fff;
+    white-space: nowrap;
   }
 
-  .loading {
+  /* ===== TOOLBAR ===== */
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 12px;
+  }
+  .toolbar h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .toolbar-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .search-box {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-family: inherit;
+    outline: none;
+    width: 200px;
+    transition: border-color 0.2s;
+    background: var(--card);
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .filter-btn {
+    border: 1px solid var(--border);
+    background: var(--card);
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* ===== TABLE ===== */
+  .table-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    background: #f9fafb;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  thead th:hover { color: var(--accent); }
+  thead th .sort-arrow { margin-left: 4px; font-size: 10px; }
+  tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background 0.1s;
+  }
+  tbody tr:hover { background: #f8f9ff; }
+  tbody tr:last-child { border-bottom: none; }
+  td {
+    padding: 10px 14px;
+    vertical-align: middle;
+  }
+  .kw-cell {
+    font-weight: 600;
+    color: var(--text);
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pos-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .pos-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #78350f; }
+  .pos-top3 { background: var(--accent-light); color: var(--accent); }
+  .pos-top5 { background: #f0f4ff; color: #6366f1; }
+  .pos-top10 { background: #f3f4f6; color: var(--text2); }
+  .pos-low { background: #fef2f2; color: var(--red); }
+
+  .trend-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .trend-up { color: var(--green); }
+  .trend-down { color: var(--red); }
+  .trend-same { color: var(--text3); }
+
+  .vol-cell { font-weight: 600; }
+  .traffic-cell { color: var(--accent); font-weight: 600; }
+  .url-cell {
+    color: var(--text3);
+    font-size: 11px;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .best-badge {
+    font-size: 11px;
+    color: var(--amber);
+    font-weight: 600;
+  }
+
+  /* ===== PAGINATION ===== */
+  .table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    background: #f9fafb;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text3);
+  }
+  .page-btns {
+    display: flex;
+    gap: 4px;
+  }
+  .page-btn {
+    border: 1px solid var(--border);
+    background: var(--card);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 600;
+    color: var(--text2);
+    cursor: pointer;
+  }
+  .page-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .page-btn:disabled { opacity: 0.4; cursor: default; }
+
+  /* ===== LOADING ===== */
+  .loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+  }
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin-bottom: 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 13px; color: var(--text3); }
+
+  .error-screen {
     text-align: center;
     padding: 60px;
-    color: #8892a4;
+    color: var(--red);
     font-size: 14px;
   }
 
-  .loading-spinner {
-    width: 32px;
-    height: 32px;
-    border: 3px solid #e8ecf4;
-    border-top: 3px solid #4361ee;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 12px;
+  /* ===== INTENTS ===== */
+  .intent-dots {
+    display: flex;
+    gap: 3px;
   }
-
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+  .intent-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    opacity: 0.25;
   }
+  .intent-dot.active { opacity: 1; }
+  .intent-dot.commercial { background: var(--accent); }
+  .intent-dot.transactional { background: var(--green); }
+  .intent-dot.informational { background: var(--amber); }
+  .intent-dot.navigational { background: var(--red); }
 
-  .error-msg {
-    text-align: center;
-    padding: 40px;
-    color: #ef4444;
-    font-size: 14px;
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    body { padding: 16px; }
+    .summary-row { grid-template-columns: repeat(3, 1fr); }
+    .movement-bar { flex-wrap: wrap; }
+    .toolbar { flex-direction: column; align-items: flex-start; }
+    .toolbar-right { width: 100%; }
+    .search-box { flex: 1; }
   }
-
-  .updated-at {
-    text-align: right;
-    font-size: 11px;
-    color: #b0b8c9;
-    margin-top: 12px;
-  }
-
   @media (max-width: 600px) {
-    .metrics-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
+    .summary-row { grid-template-columns: repeat(2, 1fr); }
+    .header { flex-direction: column; gap: 10px; }
   }
 </style>
 </head>
 <body>
 
 <div id="app">
-  <div class="loading">
-    <div class="loading-spinner"></div>
-    Loading ranking data...
+  <div class="loading-screen">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading keyword rankings...</div>
   </div>
 </div>
 
 <script>
-  // ========== CONFIGURATION ==========
-  const API_TOKEN = 'ODG0HKCsofG05X1OlZsB3dIEGqbmkCIF';
-  const PROJECT_NAME = 'QualityPRO Power Washing';
-  // ====================================
+// ========== CONFIG ==========
+const API_TOKEN = 'ODG0HKCsofG05X1OlZsB3dIEGqbmkCIF';
+const PROJECT = 'QualityPRO Power Washing';
+const API = 'https://app.keyword.com/api/v2';
+const HEADERS = { 'Authorization': 'Bearer ' + API_TOKEN };
+const PER_PAGE = 25;
+// =============================
 
-  const API_BASE = 'https://app.keyword.com/api/v2';
-  const headers = { 'Authorization': 'Bearer ' + API_TOKEN };
+let allKeywords = [];
+let filtered = [];
+let sortCol = 'position';
+let sortDir = 'asc';
+let currentPage = 1;
+let activeFilter = 'all';
+let searchQuery = '';
 
-  async function fetchData() {
-    const app = document.getElementById('app');
-    
-    try {
-      const [metricsResp, projectResp] = await Promise.all([
-        fetch(API_BASE + '/groups/' + encodeURIComponent(PROJECT_NAME) + '/metrics?timeframe=30d', { headers }),
-        fetch(API_BASE + '/groups/' + encodeURIComponent(PROJECT_NAME), { headers })
-      ]);
+async function fetchAllKeywords() {
+  let page = 1;
+  let all = [];
+  let totalPages = 1;
 
-      const metricsData = await metricsResp.json();
-      const projectData = await projectResp.json();
-
-      if (metricsData.errors || projectData.errors) {
-        throw new Error('API returned errors');
-      }
-
-      const ranges = metricsData.data.attributes.ranges;
-      const totalActive = projectData.data.attributes.keywords_count.ACTIVE || 0;
-      const lastUpdated = projectData.data.attributes.keywords_last_updated_at;
-
-      const top1 = ranges.find(r => r.title === 'Top 1') || { count: 0, monthly: { change: 0, status: 'tie' } };
-      const top2 = ranges.find(r => r.title === 'Top 2') || { count: 0, monthly: { change: 0, status: 'tie' } };
-      const top3 = ranges.find(r => r.title === 'Top 3') || { count: 0, monthly: { change: 0, status: 'tie' } };
-      const top4 = ranges.find(r => r.title === 'Top 4') || { count: 0, monthly: { change: 0, status: 'tie' } };
-      const top5 = ranges.find(r => r.title === 'Top 5') || { count: 0, monthly: { change: 0, status: 'tie' } };
-
-      function changeHTML(range) {
-        const c = range.monthly.change;
-        const s = range.monthly.status;
-        if (s === 'up') return '<span class="change-up">&#9650; +' + c + '</span>';
-        if (s === 'down') return '<span class="change-down">&#9660; ' + c + '</span>';
-        return '<span class="change-tie">&mdash;</span>';
-      }
-
-      function pct(count) {
-        return totalActive > 0 ? Math.round((count / totalActive) * 100) : 0;
-      }
-
-      const updatedDate = lastUpdated ? new Date(lastUpdated).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
-
-      app.innerHTML = `
-        <div class="widget-header">
-          <div>
-            <div class="widget-title">Keyword Rankings</div>
-            <div class="widget-subtitle">Google search position tracking</div>
-          </div>
-          <div class="total-badge">${totalActive} keywords tracked</div>
-        </div>
-
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <div class="metric-label">Top 1</div>
-            <div class="metric-value">${top1.count}<span class="metric-total">/${totalActive}</span></div>
-            <div class="metric-change">${changeHTML(top1)}</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Top 2</div>
-            <div class="metric-value">${top2.count}<span class="metric-total">/${totalActive}</span></div>
-            <div class="metric-change">${changeHTML(top2)}</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Top 3</div>
-            <div class="metric-value">${top3.count}<span class="metric-total">/${totalActive}</span></div>
-            <div class="metric-change">${changeHTML(top3)}</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Top 4</div>
-            <div class="metric-value">${top4.count}<span class="metric-total">/${totalActive}</span></div>
-            <div class="metric-change">${changeHTML(top4)}</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Top 5</div>
-            <div class="metric-value">${top5.count}<span class="metric-total">/${totalActive}</span></div>
-            <div class="metric-change">${changeHTML(top5)}</div>
-          </div>
-        </div>
-
-        <div class="bar-container">
-          <div class="bar-row">
-            <div class="bar-label-row">
-              <span>Top 1 positions</span>
-              <span>${pct(top1.count)}%</span>
-            </div>
-            <div class="bar-track">
-              <div class="bar-fill bar-fill-top1" style="width: ${pct(top1.count)}%">
-                ${pct(top1.count) > 15 ? '<span class="bar-percent">' + top1.count + ' keywords</span>' : ''}
-              </div>
-            </div>
-          </div>
-          <div class="bar-row">
-            <div class="bar-label-row">
-              <span>Top 3 positions</span>
-              <span>${pct(top3.count)}%</span>
-            </div>
-            <div class="bar-track">
-              <div class="bar-fill bar-fill-top3" style="width: ${pct(top3.count)}%">
-                ${pct(top3.count) > 15 ? '<span class="bar-percent">' + top3.count + ' keywords</span>' : ''}
-              </div>
-            </div>
-          </div>
-          <div class="bar-row">
-            <div class="bar-label-row">
-              <span>Top 5 positions</span>
-              <span>${pct(top5.count)}%</span>
-            </div>
-            <div class="bar-track">
-              <div class="bar-fill bar-fill-top5" style="width: ${pct(top5.count)}%">
-                ${pct(top5.count) > 15 ? '<span class="bar-percent">' + top5.count + ' keywords</span>' : ''}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="updated-at">Last updated: ${updatedDate}</div>
-      `;
-
-      // Animate bars
-      setTimeout(() => {
-        document.querySelectorAll('.bar-fill').forEach(bar => {
-          bar.style.width = bar.style.width;
-        });
-      }, 100);
-
-    } catch(e) {
-      app.innerHTML = '<div class="error-msg">Failed to load ranking data. Please refresh.</div>';
-      console.error(e);
+  while (page <= totalPages) {
+    const resp = await fetch(
+      API + '/groups/' + encodeURIComponent(PROJECT) + '/keywords?page=' + page,
+      { headers: HEADERS }
+    );
+    const data = await resp.json();
+    if (data.meta && data.meta.pagination) {
+      totalPages = data.meta.pagination.total_pages;
     }
+    if (data.data) {
+      all = all.concat(data.data.map(k => k.attributes));
+    }
+    page++;
+  }
+  return all;
+}
+
+async function fetchMetrics() {
+  const resp = await fetch(
+    API + '/groups/' + encodeURIComponent(PROJECT) + '/metrics?timeframe=30d',
+    { headers: HEADERS }
+  );
+  const data = await resp.json();
+  return data.data.attributes;
+}
+
+function getPositionClass(pos) {
+  if (pos === 1) return 'pos-1';
+  if (pos <= 3) return 'pos-top3';
+  if (pos <= 5) return 'pos-top5';
+  if (pos <= 10) return 'pos-top10';
+  return 'pos-low';
+}
+
+function trendHTML(val) {
+  if (val === 'N/A' || val === null || val === undefined) return '<span class="trend-same">—</span>';
+  const n = Number(val);
+  if (n > 0) return '<span class="trend-cell trend-up">▲ ' + n + '</span>';
+  if (n < 0) return '<span class="trend-cell trend-down">▼ ' + Math.abs(n) + '</span>';
+  return '<span class="trend-cell trend-same">—</span>';
+}
+
+function intentDots(intents) {
+  if (!intents) return '';
+  const types = ['commercial', 'transactional', 'informational', 'navigational'];
+  return '<div class="intent-dots" title="' + types.map(t => t + ': ' + ((intents[t] || 0) * 100).toFixed(0) + '%').join(', ') + '">' +
+    types.map(t => '<div class="intent-dot ' + t + (intents[t] > 0.2 ? ' active' : '') + '"></div>').join('') +
+    '</div>';
+}
+
+function formatUrl(url) {
+  if (!url) return '—';
+  return url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+}
+
+function applyFilters() {
+  let data = [...allKeywords];
+
+  // Search
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    data = data.filter(k => k.kw.toLowerCase().includes(q));
   }
 
-  fetchData();
-</script>
+  // Position filter
+  if (activeFilter === 'top1') data = data.filter(k => k.grank_int === 1);
+  else if (activeFilter === 'top3') data = data.filter(k => k.grank_int <= 3);
+  else if (activeFilter === 'top10') data = data.filter(k => k.grank_int <= 10);
+  else if (activeFilter === 'top20') data = data.filter(k => k.grank_int <= 20);
+  else if (activeFilter === 'up') data = data.filter(k => k.trends && typeof k.trends.month === 'number' && k.trends.month > 0);
+  else if (activeFilter === 'down') data = data.filter(k => k.trends && typeof k.trends.month === 'number' && k.trends.month < 0);
 
+  // Sort
+  data.sort((a, b) => {
+    let va, vb;
+    if (sortCol === 'keyword') { va = a.kw.toLowerCase(); vb = b.kw.toLowerCase(); }
+    else if (sortCol === 'position') { va = a.grank_int || 999; vb = b.grank_int || 999; }
+    else if (sortCol === 'best') { va = a.best || 999; vb = b.best || 999; }
+    else if (sortCol === 'volume') { va = a.ms || 0; vb = b.ms || 0; }
+    else if (sortCol === 'traffic') { va = a.estimated_traffic || 0; vb = b.estimated_traffic || 0; }
+    else if (sortCol === 'trend') {
+      va = (a.trends && typeof a.trends.month === 'number') ? a.trends.month : -999;
+      vb = (b.trends && typeof b.trends.month === 'number') ? b.trends.month : -999;
+    }
+    else if (sortCol === 'cpc') { va = a.cpc || 0; vb = b.cpc || 0; }
+    else { va = 0; vb = 0; }
+
+    if (va < vb) return sortDir === 'asc' ? -1 : 1;
+    if (va > vb) return sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  filtered = data;
+  currentPage = 1;
+}
+
+function render(metrics) {
+  const app = document.getElementById('app');
+  const total = allKeywords.length;
+  const top1 = allKeywords.filter(k => k.grank_int === 1).length;
+  const top3 = allKeywords.filter(k => k.grank_int <= 3).length;
+  const top5 = allKeywords.filter(k => k.grank_int <= 5).length;
+  const top10 = allKeywords.filter(k => k.grank_int <= 10).length;
+
+  const movedUp = allKeywords.filter(k => k.trends && typeof k.trends.month === 'number' && k.trends.month > 0).length;
+  const movedDown = allKeywords.filter(k => k.trends && typeof k.trends.month === 'number' && k.trends.month < 0).length;
+  const noChange = total - movedUp - movedDown;
+
+  const totalTraffic = allKeywords.reduce((s, k) => s + (k.estimated_traffic || 0), 0);
+
+  const pct = (n) => total > 0 ? Math.round(n / total * 100) : 0;
+
+  const updatedDate = allKeywords[0]?.updated_at
+    ? new Date(allKeywords[0].updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+    : '—';
+
+  applyFilters();
+
+  const totalPages = Math.ceil(filtered.length / PER_PAGE);
+  const pageData = filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
+
+  const sortArrow = (col) => {
+    if (sortCol !== col) return '<span class="sort-arrow" style="opacity:0.3">↕</span>';
+    return '<span class="sort-arrow">' + (sortDir === 'asc' ? '↑' : '↓') + '</span>';
+  };
+
+  const filterBtn = (id, label) =>
+    '<button class="filter-btn' + (activeFilter === id ? ' active' : '') + '" data-filter="' + id + '">' + label + '</button>';
+
+  app.innerHTML = `
+    <div class="header">
+      <div class="header-left">
+        <h1>Keyword Rankings</h1>
+        <p>Google search position tracking · ${PROJECT}</p>
+      </div>
+      <div class="header-right">
+        <span class="badge">${total} keywords tracked</span>
+        <span class="updated-badge">Updated ${updatedDate}</span>
+      </div>
+    </div>
+
+    <div class="summary-row">
+      <div class="summary-card accent">
+        <div class="label">Total</div>
+        <div class="value">${total}</div>
+        <div class="sub">keywords</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Top 1</div>
+        <div class="value">${top1} <span>/ ${total}</span></div>
+        <div class="sub">${pct(top1)}% of keywords</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Top 3</div>
+        <div class="value">${top3} <span>/ ${total}</span></div>
+        <div class="sub">${pct(top3)}% of keywords</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Top 5</div>
+        <div class="value">${top5} <span>/ ${total}</span></div>
+        <div class="sub">${pct(top5)}% of keywords</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Top 10</div>
+        <div class="value">${top10} <span>/ ${total}</span></div>
+        <div class="sub">${pct(top10)}% of keywords</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Est. Traffic</div>
+        <div class="value">${totalTraffic.toLocaleString()}</div>
+        <div class="sub">monthly visits</div>
+      </div>
+    </div>
+
+    <div class="movement-bar">
+      <div class="movement-item">
+        <div class="movement-icon up">▲</div>
+        <div class="movement-text">
+          <div class="mv-value">${movedUp}</div>
+          <div class="mv-label">Moved up (30d)</div>
+        </div>
+      </div>
+      <div class="movement-item">
+        <div class="movement-icon down">▼</div>
+        <div class="movement-text">
+          <div class="mv-value">${movedDown}</div>
+          <div class="mv-label">Moved down (30d)</div>
+        </div>
+      </div>
+      <div class="movement-item">
+        <div class="movement-icon same">—</div>
+        <div class="movement-text">
+          <div class="mv-value">${noChange}</div>
+          <div class="mv-label">No change</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-section">
+      <h3>Position Distribution</h3>
+      <div class="bar-row">
+        <div class="bar-label-row">
+          <span>Top 1 position</span>
+          <span class="pct">${pct(top1)}%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill top1" data-width="${pct(top1)}">
+            ${pct(top1) > 12 ? '<span class="bar-count">' + top1 + ' keywords</span>' : ''}
+          </div>
+        </div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label-row">
+          <span>Top 3 positions</span>
+          <span class="pct">${pct(top3)}%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill top3" data-width="${pct(top3)}">
+            ${pct(top3) > 12 ? '<span class="bar-count">' + top3 + ' keywords</span>' : ''}
+          </div>
+        </div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label-row">
+          <span>Top 5 positions</span>
+          <span class="pct">${pct(top5)}%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill top5" data-width="${pct(top5)}">
+            ${pct(top5) > 12 ? '<span class="bar-count">' + top5 + ' keywords</span>' : ''}
+          </div>
+        </div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label-row">
+          <span>Top 10 positions</span>
+          <span class="pct">${pct(top10)}%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill top10" data-width="${pct(top10)}">
+            ${pct(top10) > 12 ? '<span class="bar-count">' + top10 + ' keywords</span>' : ''}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <h3>All Keywords (${filtered.length})</h3>
+      <div class="toolbar-right">
+        <input type="text" class="search-box" placeholder="Search keywords..." id="searchInput" value="${searchQuery}">
+        ${filterBtn('all', 'All')}
+        ${filterBtn('top1', '#1')}
+        ${filterBtn('top3', 'Top 3')}
+        ${filterBtn('top10', 'Top 10')}
+        ${filterBtn('up', '▲ Up')}
+        ${filterBtn('down', '▼ Down')}
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th data-sort="keyword">Keyword ${sortArrow('keyword')}</th>
+            <th data-sort="position">Position ${sortArrow('position')}</th>
+            <th data-sort="best">Best ${sortArrow('best')}</th>
+            <th data-sort="trend">30d ${sortArrow('trend')}</th>
+            <th data-sort="volume">Volume ${sortArrow('volume')}</th>
+            <th data-sort="traffic">Traffic ${sortArrow('traffic')}</th>
+            <th data-sort="cpc">CPC ${sortArrow('cpc')}</th>
+            <th>Intent</th>
+            <th>Ranking URL</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${pageData.map(k => `
+            <tr>
+              <td class="kw-cell" title="${k.kw}">${k.kw}</td>
+              <td><span class="pos-badge ${getPositionClass(k.grank_int)}">${k.grank_int || '—'}</span></td>
+              <td><span class="best-badge">${k.best || '—'}</span></td>
+              <td>${trendHTML(k.trends?.month)}</td>
+              <td class="vol-cell">${(k.ms || 0).toLocaleString()}</td>
+              <td class="traffic-cell">${(k.estimated_traffic || 0).toLocaleString()}</td>
+              <td>${k.cpc ? '$' + k.cpc.toFixed(2) : '—'}</td>
+              <td>${intentDots(k.search_intents)}</td>
+              <td class="url-cell" title="${k.rankingurl || ''}">${formatUrl(k.rankingurl)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div class="table-footer">
+        <span>Showing ${(currentPage-1)*PER_PAGE + 1}–${Math.min(currentPage*PER_PAGE, filtered.length)} of ${filtered.length}</span>
+        <div class="page-btns">
+          <button class="page-btn" id="prevPage" ${currentPage <= 1 ? 'disabled' : ''}>← Prev</button>
+          ${Array.from({length: totalPages}, (_, i) => i + 1).map(p =>
+            '<button class="page-btn' + (p === currentPage ? ' active' : '') + '" data-page="' + p + '">' + p + '</button>'
+          ).join('')}
+          <button class="page-btn" id="nextPage" ${currentPage >= totalPages ? 'disabled' : ''}>Next →</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll('.bar-fill').forEach(bar => {
+      bar.style.width = bar.dataset.width + '%';
+    });
+  }, 50);
+
+  // Event listeners
+  document.querySelectorAll('th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.sort;
+      if (sortCol === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      else { sortCol = col; sortDir = col === 'keyword' ? 'asc' : 'desc'; }
+      render(metrics);
+    });
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeFilter = btn.dataset.filter;
+      render(metrics);
+    });
+  });
+
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    applyFilters();
+    render(metrics);
+    document.getElementById('searchInput').focus();
+  });
+
+  document.querySelectorAll('.page-btn[data-page]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentPage = Number(btn.dataset.page);
+      render(metrics);
+    });
+  });
+
+  const prevBtn = document.getElementById('prevPage');
+  const nextBtn = document.getElementById('nextPage');
+  if (prevBtn) prevBtn.addEventListener('click', () => { if (currentPage > 1) { currentPage--; render(metrics); } });
+  if (nextBtn) nextBtn.addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; render(metrics); } });
+}
+
+// ===== INIT =====
+(async () => {
+  try {
+    const [keywords, metrics] = await Promise.all([
+      fetchAllKeywords(),
+      fetchMetrics()
+    ]);
+    allKeywords = keywords;
+    render(metrics);
+  } catch (e) {
+    document.getElementById('app').innerHTML =
+      '<div class="error-screen">Failed to load data. Please refresh.<br><small>' + e.message + '</small></div>';
+    console.error(e);
+  }
+})();
+</script>
 </body>
 </html>
