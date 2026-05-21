@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f9fb;
+    --card: #ffffff;
+    --text: #1b1f27;
+    --text2: #5f6980;
+    --text3: #9aa3b4;
+    --border: #e8ecf2;
+    --accent: #10b981;
+    --accent-light: #ecfdf5;
+    --blue: #4f6ef7;
+    --blue-light: #eef1fe;
+    --purple: #8b5cf6;
+    --purple-light: #f3f0ff;
+    --amber: #f59e0b;
+    --amber-light: #fffbeb;
+    --red: #ef4444;
+    --red-light: #fef2f2;
+    --cyan: #06b6d4;
+    --cyan-light: #ecfeff;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-lg: 0 4px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 24px;
+  }
+  .header-left h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
+  .header-left p { font-size: 13px; color: var(--text3); margin-top: 3px; }
+  .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .badge { font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px; white-space: nowrap; }
+  .badge-green { background: var(--accent-light); color: var(--accent); }
+  .badge-gray { background: var(--card); border: 1px solid var(--border); color: var(--text3); font-weight: 500; font-size: 11px; }
+
+  .period-btns { display: flex; gap: 4px; margin-bottom: 20px; }
+  .period-btn {
+    border: 1px solid var(--border); background: var(--card); border-radius: 8px;
+    padding: 7px 16px; font-size: 12px; font-weight: 600; font-family: inherit;
+    color: var(--text2); cursor: pointer; transition: all 0.15s;
+  }
+  .period-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .period-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* KPI CARDS */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px; box-shadow: var(--shadow); transition: transform 0.15s, box-shadow 0.15s;
+    position: relative; overflow: hidden;
+  }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .kpi-card .kpi-icon {
+    width: 36px; height: 36px; border-radius: 10px; display: flex;
+    align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px;
+  }
+  .kpi-card .kpi-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi-card .kpi-value { font-size: 30px; font-weight: 800; margin-top: 4px; line-height: 1; }
+  .kpi-card .kpi-sub { font-size: 12px; color: var(--text3); margin-top: 6px; }
+  .kpi-card.main { background: var(--accent); border-color: var(--accent); }
+  .kpi-card.main .kpi-label, .kpi-card.main .kpi-value, .kpi-card.main .kpi-sub { color: #fff; }
+  .kpi-card.main .kpi-icon { background: rgba(255,255,255,0.2); color: #fff; }
+
+  /* TWO COL LAYOUT */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .panel {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px; box-shadow: var(--shadow);
+  }
+  .panel h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+
+  /* BAR CHART */
+  .h-bar { margin-bottom: 12px; }
+  .h-bar:last-child { margin-bottom: 0; }
+  .h-bar-top { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+  .h-bar-label { font-weight: 600; color: var(--text); }
+  .h-bar-val { font-weight: 700; color: var(--text2); }
+  .h-bar-track { background: #f0f2f5; border-radius: 6px; height: 20px; overflow: hidden; }
+  .h-bar-fill {
+    height: 100%; border-radius: 6px; transition: width 0.8s cubic-bezier(0.22,1,0.36,1); width: 0;
+    display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;
+    font-size: 10px; font-weight: 700; color: #fff;
+  }
+
+  /* DONUT */
+  .donut-wrap { display: flex; align-items: center; gap: 20px; }
+  .donut-svg { width: 130px; height: 130px; flex-shrink: 0; }
+  .donut-legend { flex: 1; }
+  .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .legend-name { color: var(--text2); flex: 1; }
+  .legend-val { font-weight: 700; }
+
+  /* MINI CHART (daily leads sparkline) */
+  .chart-container { width: 100%; height: 140px; position: relative; }
+  .chart-container svg { width: 100%; height: 100%; }
+
+  /* CALL STATS */
+  .call-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .call-stat { text-align: center; padding: 14px; background: #f9fafb; border-radius: 8px; }
+  .call-stat .cs-val { font-size: 22px; font-weight: 800; }
+  .call-stat .cs-label { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+  /* TABLE */
+  .table-panel { margin-bottom: 20px; }
+  .table-wrap {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .table-header h3 { font-size: 14px; font-weight: 700; }
+  .search-box {
+    border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px;
+    font-size: 12px; font-family: inherit; outline: none; width: 200px;
+    background: var(--card); transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    background: #f9fafb; border-bottom: 1px solid var(--border); padding: 10px 14px;
+    text-align: left; font-size: 11px; font-weight: 700; color: var(--text3);
+    text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; white-space: nowrap;
+    position: sticky; top: 0; z-index: 1;
+  }
+  thead th:hover { color: var(--accent); }
+  tbody tr { border-bottom: 1px solid #f3f4f6; transition: background 0.1s; }
+  tbody tr:hover { background: #f0fdf4; }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 9px 14px; vertical-align: middle; }
+
+  .type-badge {
+    display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px;
+    border-radius: 6px; font-size: 11px; font-weight: 600; white-space: nowrap;
+  }
+  .type-call { background: var(--blue-light); color: var(--blue); }
+  .type-form { background: var(--purple-light); color: var(--purple); }
+  .type-appt { background: var(--cyan-light); color: var(--cyan); }
+  .type-txn { background: var(--accent-light); color: var(--accent); }
+  .type-text { background: var(--amber-light); color: var(--amber); }
+
+  .source-cell { font-weight: 600; font-size: 12px; }
+  .medium-badge {
+    font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+  }
+  .med-organic { background: var(--accent-light); color: var(--accent); }
+  .med-cpc { background: var(--blue-light); color: var(--blue); }
+  .med-referral { background: var(--purple-light); color: var(--purple); }
+  .med-none { background: #f3f4f6; color: var(--text3); }
+
+  .status-unique { color: var(--accent); font-weight: 600; font-size: 12px; }
+  .status-repeat { color: var(--amber); font-weight: 600; font-size: 12px; }
+  .date-cell { font-size: 12px; color: var(--text2); white-space: nowrap; }
+  .duration-cell { font-size: 12px; color: var(--text2); }
+
+  .table-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 14px; background: #f9fafb; border-top: 1px solid var(--border);
+    font-size: 12px; color: var(--text3);
+  }
+  .page-btns { display: flex; gap: 4px; }
+  .page-btn {
+    border: 1px solid var(--border); background: var(--card); border-radius: 6px;
+    padding: 5px 10px; font-size: 12px; font-family: inherit; font-weight: 600;
+    color: var(--text2); cursor: pointer;
+  }
+  .page-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .page-btn:disabled { opacity: 0.4; cursor: default; }
+
+  .loading-screen { display: flex; flex-direction: column; align-items: center; padding: 80px; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 14px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 13px; color: var(--text3); }
+
+  @media (max-width: 900px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    body { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="loading-screen">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading lead data...</div>
+  </div>
+</div>
+
+<script>
+// ========== CONFIG ==========
+const API_TOKEN = '3374-2eef143005cd4638';
+const API_SECRET = '473b3b30874b59ac294d7c692ebc1855';
+const AUTH = btoa(API_TOKEN + ':' + API_SECRET);
+const PROFILE_ID = 160181; // QualityPRO Power Washing
+const PROFILE_NAME = 'QualityPRO Power Washing';
+const API = 'https://app.whatconverts.com/api/v1';
+const PER_PAGE = 20;
+// =============================
+
+let allLeads = [];
+let filtered = [];
+let currentPeriod = 30;
+let currentPage = 1;
+let searchQuery = '';
+
+async function fetchLeads(days) {
+  const now = new Date();
+  const start = new Date(now - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const end = now.toISOString().split('T')[0];
+  let all = [];
+  let page = 1;
+  let totalLeads = 999;
+
+  while (all.length < totalLeads && page <= 10) {
+    const resp = await fetch(
+      API + '/leads/?leads_per_page=250&profile_id=' + PROFILE_ID +
+      '&start_date=' + start + '&end_date=' + end + '&page_number=' + page,
+      { headers: { 'Authorization': 'Basic ' + AUTH } }
+    );
+    const data = await resp.json();
+    totalLeads = data.total_leads || 0;
+    if (!data.leads || data.leads.length === 0) break;
+    all = all.concat(data.leads);
+    page++;
+  }
+  return all;
+}
+
+function getTypeClass(type) {
+  if (type === 'Phone Call') return 'type-call';
+  if (type === 'Web Form') return 'type-form';
+  if (type === 'Appointment') return 'type-appt';
+  if (type === 'Transaction') return 'type-txn';
+  if (type === 'Text Message') return 'type-text';
+  return '';
+}
+
+function getTypeIcon(type) {
+  if (type === 'Phone Call') return '📞';
+  if (type === 'Web Form') return '📋';
+  if (type === 'Appointment') return '📅';
+  if (type === 'Transaction') return '💰';
+  if (type === 'Text Message') return '💬';
+  return '•';
+}
+
+function getMediumClass(med) {
+  const m = (med || '').toLowerCase();
+  if (m === 'organic') return 'med-organic';
+  if (m === 'cpc') return 'med-cpc';
+  if (m === 'referral') return 'med-referral';
+  return 'med-none';
+}
+
+function donutSVG(data, colors, size) {
+  const total = data.reduce((s, d) => s + d.value, 0);
+  if (total === 0) return '<svg viewBox="0 0 42 42" class="donut-svg"><circle cx="21" cy="21" r="15.9" fill="none" stroke="#eee" stroke-width="5"/></svg>';
+  let offset = 25;
+  const circles = data.map((d, i) => {
+    const pct = (d.value / total) * 100;
+    const circle = `<circle cx="21" cy="21" r="15.9" fill="none" stroke="${colors[i]}" stroke-width="5" stroke-dasharray="${pct} ${100-pct}" stroke-dashoffset="${offset}" stroke-linecap="round"/>`;
+    offset -= pct;
+    return circle;
+  });
+  return `<svg viewBox="0 0 42 42" class="donut-svg">
+    <circle cx="21" cy="21" r="15.9" fill="none" stroke="#f0f2f5" stroke-width="5"/>
+    ${circles.join('')}
+    <text x="21" y="21" text-anchor="middle" dy=".3em" font-size="7" font-weight="800" fill="#1b1f27">${total}</text>
+  </svg>`;
+}
+
+function sparklineSVG(dailyData, w, h) {
+  if (!dailyData.length) return '';
+  const max = Math.max(...dailyData.map(d => d.count), 1);
+  const barW = Math.max(2, (w - dailyData.length * 2) / dailyData.length);
+  const bars = dailyData.map((d, i) => {
+    const bh = (d.count / max) * (h - 20);
+    const x = i * (barW + 2);
+    return `<rect x="${x}" y="${h - bh}" width="${barW}" height="${bh}" rx="2" fill="#10b981" opacity="0.7">
+      <title>${d.date}: ${d.count} leads</title></rect>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">${bars}</svg>`;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  const leads = allLeads;
+  const total = leads.length;
+
+  // KPIs
+  const types = {}; const sources = {}; const mediums = {};
+  let calls = 0, answered = 0, totalDur = 0;
+  let totalSales = 0, totalQuote = 0;
+  const byDay = {};
+
+  leads.forEach(l => {
+    types[l.lead_type] = (types[l.lead_type] || 0) + 1;
+    const src = l.lead_source || '(direct)';
+    sources[src] = (sources[src] || 0) + 1;
+    mediums[l.lead_medium || '(none)'] = (mediums[l.lead_medium || '(none)'] || 0) + 1;
+    const day = l.date_created.substring(0, 10);
+    byDay[day] = (byDay[day] || 0) + 1;
+    if (l.lead_type === 'Phone Call') {
+      calls++;
+      if (l.answer_status === 'Answered') answered++;
+      totalDur += l.call_duration_seconds || 0;
+    }
+    if (l.sales_value) totalSales += parseFloat(l.sales_value) || 0;
+    if (l.quote_value) totalQuote += parseFloat(l.quote_value) || 0;
+  });
+
+  const unique = leads.filter(l => l.lead_status === 'Unique').length;
+  const avgPerDay = currentPeriod > 0 ? (total / currentPeriod).toFixed(1) : '—';
+
+  // Daily chart data
+  const days = [];
+  for (let i = currentPeriod - 1; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 24*60*60*1000);
+    const ds = d.toISOString().split('T')[0];
+    days.push({ date: ds, count: byDay[ds] || 0 });
+  }
+
+  // Source breakdown sorted
+  const srcArr = Object.entries(sources).sort((a,b) => b[1] - a[1]);
+  const maxSrc = srcArr[0] ? srcArr[0][1] : 1;
+
+  // Type donut data
+  const typeOrder = ['Phone Call', 'Appointment', 'Transaction', 'Web Form', 'Text Message'];
+  const typeColors = ['#4f6ef7', '#06b6d4', '#10b981', '#8b5cf6', '#f59e0b'];
+  const typeData = typeOrder.filter(t => types[t]).map((t, i) => ({ name: t, value: types[t] || 0 }));
+
+  // Medium breakdown
+  const medArr = Object.entries(mediums).sort((a,b) => b[1] - a[1]);
+  const medColors = { organic: '#10b981', cpc: '#4f6ef7', referral: '#8b5cf6', '(none)': '#d1d5db' };
+
+  // Filter for table
+  let tableData = [...leads];
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    tableData = tableData.filter(l =>
+      (l.lead_type || '').toLowerCase().includes(q) ||
+      (l.lead_source || '').toLowerCase().includes(q) ||
+      (l.lead_medium || '').toLowerCase().includes(q) ||
+      (l.contact_name || '').toLowerCase().includes(q) ||
+      (l.caller_city || '').toLowerCase().includes(q)
+    );
+  }
+  filtered = tableData;
+  const totalPages = Math.ceil(filtered.length / PER_PAGE);
+  const pageData = filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
+
+  const fmtDur = (s) => { const m = Math.floor(s/60); const sec = s%60; return m + ':' + String(sec).padStart(2,'0'); };
+  const fmtDate = (d) => { const dt = new Date(d); return dt.toLocaleDateString('en-US', {month:'short',day:'numeric'}) + ' ' + dt.toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'}); };
+
+  const periodBtn = (d, label) => `<button class="period-btn${currentPeriod===d?' active':''}" data-period="${d}">${label}</button>`;
+
+  app.innerHTML = `
+    <div class="header">
+      <div class="header-left">
+        <h1>Lead Tracking</h1>
+        <p>WhatConverts · ${PROFILE_NAME}</p>
+      </div>
+      <div class="header-right">
+        <span class="badge badge-green">${total} leads</span>
+        <span class="badge badge-gray">${avgPerDay} / day avg</span>
+      </div>
+    </div>
+
+    <div class="period-btns">
+      ${periodBtn(7, '7 Days')}
+      ${periodBtn(14, '14 Days')}
+      ${periodBtn(30, '30 Days')}
+      ${periodBtn(60, '60 Days')}
+      ${periodBtn(90, '90 Days')}
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-card main">
+        <div class="kpi-icon" style="background:rgba(255,255,255,0.2);color:#fff;">📊</div>
+        <div class="kpi-label">Total Leads</div>
+        <div class="kpi-value">${total}</div>
+        <div class="kpi-sub">${unique} unique · ${total - unique} repeat</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--blue-light);color:var(--blue);">📞</div>
+        <div class="kpi-label">Phone Calls</div>
+        <div class="kpi-value">${calls}</div>
+        <div class="kpi-sub">${answered} answered · avg ${fmtDur(calls > 0 ? Math.round(totalDur/calls) : 0)}</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--accent-light);color:var(--accent);">💰</div>
+        <div class="kpi-label">Sales Value</div>
+        <div class="kpi-value">$${totalSales.toLocaleString(undefined,{maximumFractionDigits:0})}</div>
+        <div class="kpi-sub">${currentPeriod} day period</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:var(--amber-light);color:var(--amber);">⚡</div>
+        <div class="kpi-label">Avg / Day</div>
+        <div class="kpi-value">${avgPerDay}</div>
+        <div class="kpi-sub">leads per day</div>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <h3>Leads by Type</h3>
+        <div class="donut-wrap">
+          ${donutSVG(typeData, typeColors, 130)}
+          <div class="donut-legend">
+            ${typeData.map((t, i) => `
+              <div class="legend-item">
+                <div class="legend-dot" style="background:${typeColors[i]}"></div>
+                <span class="legend-name">${t.name}</span>
+                <span class="legend-val">${t.value}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Lead Sources</h3>
+        ${srcArr.slice(0, 6).map(([name, count]) => `
+          <div class="h-bar">
+            <div class="h-bar-top">
+              <span class="h-bar-label">${name}</span>
+              <span class="h-bar-val">${count}</span>
+            </div>
+            <div class="h-bar-track">
+              <div class="h-bar-fill" data-width="${Math.round(count/maxSrc*100)}" style="background:var(--accent);">
+                ${count > maxSrc*0.15 ? count : ''}
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="panel">
+        <h3>Daily Leads</h3>
+        <div class="chart-container">
+          ${sparklineSVG(days, 500, 140)}
+        </div>
+      </div>
+      <div class="panel">
+        <h3>By Channel</h3>
+        ${medArr.map(([name, count]) => `
+          <div class="h-bar">
+            <div class="h-bar-top">
+              <span class="h-bar-label">${name}</span>
+              <span class="h-bar-val">${count} <span style="color:var(--text3);font-weight:400">(${Math.round(count/total*100)}%)</span></span>
+            </div>
+            <div class="h-bar-track">
+              <div class="h-bar-fill" data-width="${Math.round(count/total*100)}" style="background:${medColors[name.toLowerCase()] || '#d1d5db'}"></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    ${calls > 0 ? `
+    <div class="panel" style="margin-bottom:20px;">
+      <h3>Call Performance</h3>
+      <div class="call-stats">
+        <div class="call-stat">
+          <div class="cs-val" style="color:var(--blue)">${calls}</div>
+          <div class="cs-label">Total Calls</div>
+        </div>
+        <div class="call-stat">
+          <div class="cs-val" style="color:var(--accent)">${answered}</div>
+          <div class="cs-label">Answered</div>
+        </div>
+        <div class="call-stat">
+          <div class="cs-val" style="color:var(--text)">${fmtDur(calls > 0 ? Math.round(totalDur/calls) : 0)}</div>
+          <div class="cs-label">Avg Duration</div>
+        </div>
+      </div>
+    </div>` : ''}
+
+    <div class="table-panel">
+      <div class="table-header">
+        <h3>Recent Leads (${filtered.length})</h3>
+        <input type="text" class="search-box" placeholder="Search leads..." id="searchInput" value="${searchQuery}">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Source</th>
+              <th>Medium</th>
+              <th>Status</th>
+              <th>Contact</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${pageData.map(l => `
+              <tr>
+                <td class="date-cell">${fmtDate(l.date_created)}</td>
+                <td><span class="type-badge ${getTypeClass(l.lead_type)}">${getTypeIcon(l.lead_type)} ${l.lead_type}</span></td>
+                <td class="source-cell">${l.lead_source || '(direct)'}</td>
+                <td><span class="medium-badge ${getMediumClass(l.lead_medium)}">${l.lead_medium || '(none)'}</span></td>
+                <td><span class="${l.lead_status === 'Unique' ? 'status-unique' : 'status-repeat'}">${l.lead_status || '—'}</span></td>
+                <td style="font-size:12px;">${l.contact_name || (l.caller_city ? l.caller_city + ', ' + l.caller_state : '—')}</td>
+                <td class="duration-cell">${l.lead_type === 'Phone Call' ? (l.call_duration || '—') : (l.sales_value ? '$' + parseFloat(l.sales_value).toLocaleString() : '—')}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div class="table-footer">
+          <span>Showing ${(currentPage-1)*PER_PAGE+1}–${Math.min(currentPage*PER_PAGE, filtered.length)} of ${filtered.length}</span>
+          <div class="page-btns">
+            <button class="page-btn" id="prevPage" ${currentPage<=1?'disabled':''}>← Prev</button>
+            ${Array.from({length: Math.min(totalPages, 8)}, (_,i) => i+1).map(p =>
+              `<button class="page-btn${p===currentPage?' active':''}" data-page="${p}">${p}</button>`
+            ).join('')}
+            <button class="page-btn" id="nextPage" ${currentPage>=totalPages?'disabled':''}>Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll('.h-bar-fill').forEach(bar => {
+      bar.style.width = bar.dataset.width + '%';
+    });
+  }, 50);
+
+  // Events
+  document.querySelectorAll('.period-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const days = parseInt(btn.dataset.period);
+      if (days === currentPeriod) return;
+      currentPeriod = days;
+      currentPage = 1;
+      app.innerHTML = '<div class="loading-screen"><div class="spinner"></div><div class="loading-text">Loading ' + days + ' days of data...</div></div>';
+      allLeads = await fetchLeads(days);
+      render();
+    });
+  });
+
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    currentPage = 1;
+    render();
+    document.getElementById('searchInput').focus();
+  });
+
+  document.querySelectorAll('.page-btn[data-page]').forEach(btn => {
+    btn.addEventListener('click', () => { currentPage = Number(btn.dataset.page); render(); });
+  });
+  const prev = document.getElementById('prevPage');
+  const next = document.getElementById('nextPage');
+  if (prev) prev.addEventListener('click', () => { if(currentPage>1){currentPage--;render();} });
+  if (next) next.addEventListener('click', () => { if(currentPage<totalPages){currentPage++;render();} });
+}
+
+// INIT
+(async () => {
+  try {
+    allLeads = await fetchLeads(currentPeriod);
+    render();
+  } catch(e) {
+    document.getElementById('app').innerHTML = '<div style="text-align:center;padding:60px;color:#ef4444;">Failed to load. ' + e.message + '</div>';
+  }
+})();
+</script>
+</body>
+</html>
