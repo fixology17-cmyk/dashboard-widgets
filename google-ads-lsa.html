@@ -81,7 +81,13 @@ function fetchSheet(sheetName) {
     return json.table.rows.map(function(r) {
       var obj = {};
       r.c.forEach(function(cell, i) {
-        obj[cols[i]] = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : (cell.f || '')) : '';
+        if (!cell) { obj[cols[i]] = ''; return; }
+        // Use formatted value (f) for dates, otherwise use raw value (v)
+        if (cell.f) {
+          obj[cols[i]] = cell.f;
+        } else {
+          obj[cols[i]] = cell.v !== null && cell.v !== undefined ? cell.v : '';
+        }
       });
       return obj;
     });
@@ -95,9 +101,22 @@ function fmtMoney(v) {
 
 function fmtDate(d) {
   if (!d) return '';
-  var parts = d.split('-');
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return months[parseInt(parts[1])-1] + ' ' + parseInt(parts[2]);
+  // If it's a Date object
+  if (d instanceof Date) {
+    return months[d.getMonth()] + ' ' + d.getDate();
+  }
+  // If string like "2026-04-22"
+  if (typeof d === 'string' && d.indexOf('-') > -1) {
+    var parts = d.split('-');
+    return months[parseInt(parts[1])-1] + ' ' + parseInt(parts[2]);
+  }
+  // If string like "Date(2026,3,22)" from gviz
+  if (typeof d === 'string' && d.indexOf('Date(') > -1) {
+    var m = d.match(/Date\((\d+),(\d+),(\d+)\)/);
+    if (m) return months[parseInt(m[2])] + ' ' + parseInt(m[3]);
+  }
+  return String(d);
 }
 
 function chartSVG(data, key, w, h, color) {
