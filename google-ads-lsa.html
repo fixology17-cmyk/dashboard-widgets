@@ -15,7 +15,6 @@
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 24px; -webkit-font-smoothing: antialiased; }
-
   .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
   .header-left h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
   .header-left p { font-size: 13px; color: var(--text3); margin-top: 3px; }
@@ -23,12 +22,6 @@
   .badge { font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px; white-space: nowrap; }
   .badge-blue { background: var(--accent-light); color: var(--accent); }
   .badge-gray { background: var(--card); border: 1px solid var(--border); color: var(--text3); font-weight: 500; font-size: 11px; }
-
-  .period-btns { display: flex; gap: 4px; margin-bottom: 20px; }
-  .period-btn { border: 1px solid var(--border); background: var(--card); border-radius: 8px; padding: 7px 16px; font-size: 12px; font-weight: 600; font-family: inherit; color: var(--text2); cursor: pointer; transition: all 0.15s; }
-  .period-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .period-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-
   .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
   .kpi-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); transition: transform 0.15s, box-shadow 0.15s; }
   .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
@@ -39,11 +32,9 @@
   .kpi-card.main { background: var(--accent); border-color: var(--accent); }
   .kpi-card.main .kpi-label, .kpi-card.main .kpi-value, .kpi-card.main .kpi-sub { color: #fff; }
   .kpi-card.main .kpi-icon { background: rgba(255,255,255,0.2); color: #fff; }
-
   .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
   .panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
   .panel h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
-
   .h-bar { margin-bottom: 12px; }
   .h-bar:last-child { margin-bottom: 0; }
   .h-bar-top { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
@@ -51,12 +42,10 @@
   .h-bar-val { font-weight: 700; color: var(--text2); }
   .h-bar-track { background: #f0f2f5; border-radius: 6px; height: 20px; overflow: hidden; }
   .h-bar-fill { height: 100%; border-radius: 6px; transition: width 0.8s cubic-bezier(0.22,1,0.36,1); width: 0; }
-
   .chart-container { width: 100%; height: 160px; }
   .chart-container svg { width: 100%; height: 100%; }
-
   .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 20px; }
-  .table-title { padding: 16px 16px 0; font-size: 14px; font-weight: 700; }
+  .table-title { padding: 16px 16px 12px; font-size: 14px; font-weight: 700; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   thead th { background: #f9fafb; border-bottom: 1px solid var(--border); padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
   tbody tr { border-bottom: 1px solid #f3f4f6; }
@@ -67,19 +56,11 @@
   .status-active { background: var(--green); }
   .status-paused { background: var(--amber); }
   .status-removed { background: var(--red); }
-
-  .device-bar { display: flex; height: 24px; border-radius: 6px; overflow: hidden; margin-bottom: 8px; }
-  .device-segment { display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #fff; min-width: 30px; }
-  .device-legend { display: flex; gap: 16px; font-size: 12px; }
-  .device-legend span { display: flex; align-items: center; gap: 5px; }
-  .device-legend .dot { width: 8px; height: 8px; border-radius: 2px; }
-
   .loading-screen { display: flex; flex-direction: column; align-items: center; padding: 80px; }
   .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 14px; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-text { font-size: 13px; color: var(--text3); }
   .error-screen { text-align: center; padding: 60px; color: var(--red); }
-
   @media (max-width: 900px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } .two-col { grid-template-columns: 1fr; } body { padding: 16px; } }
 </style>
 </head>
@@ -90,299 +71,170 @@
     <div class="loading-text">Loading Google Ads data...</div>
   </div>
 </div>
-
 <script>
-// ========== CONFIG ==========
-const CLIENT_ID = '276290789161-04nrni68fa61g5bggg69djqnjrtmfjqe.apps.googleusercontent.com';
-const CLIENT_SECRET = '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';
-const REFRESH_TOKEN = '1//04o9hhyeIDS3sCgYIARAAGAQSNwF-L9Iri6EwElo_lYfkCdVHKa7wZQqRMGg1JO-8UDxNqq6nlS40zgYYwSaEgm30ul4ynEZuHmo';
-const CUSTOMER_ID = '2277831466';
-const LOGIN_CUSTOMER_ID = '5056918933';
+const SHEET_ID = '1ep4N3SgDm8hhdiV9BALOPGxjUemCeLf5Ct8i-Hvem8g';
 const ACCOUNT_NAME = 'QualityPRO LSA';
-const API_VERSION = 'v19';
-// =============================
 
-let accessToken = null;
-let campaignData = [];
-let keywordData = [];
-let dailyData = [];
-let currentPeriod = 'LAST_30_DAYS';
-
-async function getAccessToken() {
-  const resp = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id: CLIENT_ID,
-      client_secret: CLIENT_SECRET,
-      refresh_token: REFRESH_TOKEN,
-      grant_type: 'refresh_token'
-    })
-  });
-  const data = await resp.json();
-  if (!data.access_token) throw new Error('Auth failed: ' + JSON.stringify(data));
-  accessToken = data.access_token;
-  return accessToken;
-}
-
-async function queryAds(query) {
-  const resp = await fetch(`https://googleads.googleapis.com/${API_VERSION}/customers/${CUSTOMER_ID}/googleAds:searchStream`, {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + accessToken,
-      'developer-token': 'rLh_loAR6Dgm1MYYI-i9sA',
-      'login-customer-id': LOGIN_CUSTOMER_ID,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ query })
-  });
-  const data = await resp.json();
-  if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-  // searchStream returns array of result batches
-  let results = [];
-  if (Array.isArray(data)) {
-    data.forEach(batch => {
-      if (batch.results) results = results.concat(batch.results);
+async function fetchSheet(sheetName) {
+  const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(sheetName);
+  const resp = await fetch(url);
+  const text = await resp.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/)[1]);
+  const cols = json.table.cols.map(function(c) { return c.label; });
+  return json.table.rows.map(function(r) {
+    var obj = {};
+    r.c.forEach(function(cell, i) {
+      obj[cols[i]] = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : (cell.f || '')) : '';
     });
-  }
-  return results;
+    return obj;
+  });
 }
 
-async function fetchAllData() {
-  await getAccessToken();
-
-  // Campaign performance
-  campaignData = await queryAds(`
-    SELECT campaign.name, campaign.status, metrics.clicks, metrics.impressions,
-           metrics.cost_micros, metrics.conversions, metrics.ctr, metrics.average_cpc,
-           metrics.cost_per_conversion
-    FROM campaign
-    WHERE segments.date DURING ${currentPeriod}
-    ORDER BY metrics.cost_micros DESC
-  `);
-
-  // Keyword performance
-  keywordData = await queryAds(`
-    SELECT ad_group_criterion.keyword.text, ad_group_criterion.keyword.match_type,
-           metrics.clicks, metrics.impressions, metrics.cost_micros, metrics.ctr,
-           metrics.average_cpc, metrics.conversions
-    FROM keyword_view
-    WHERE segments.date DURING ${currentPeriod}
-    ORDER BY metrics.cost_micros DESC
-    LIMIT 20
-  `);
-
-  // Daily data for chart
-  dailyData = await queryAds(`
-    SELECT segments.date, metrics.clicks, metrics.impressions, metrics.cost_micros, metrics.conversions
-    FROM customer
-    WHERE segments.date DURING ${currentPeriod}
-    ORDER BY segments.date ASC
-  `);
+function fmtMoney(v) {
+  var n = typeof v === 'string' ? parseFloat(v) : (v || 0);
+  return '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
-
-function micro(v) { return (v || 0) / 1000000; }
-function fmtMoney(v) { return '$' + v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-function fmtPct(v) { return (v * 100).toFixed(2) + '%'; }
-function statusName(s) { return (s || '').replace('ENABLED','Active').replace('PAUSED','Paused').replace('REMOVED','Removed'); }
-function statusClass(s) { if (s === 'ENABLED') return 'status-active'; if (s === 'PAUSED') return 'status-paused'; return 'status-removed'; }
 
 function sparklineSVG(data, key, w, h, color) {
   if (!data.length) return '';
-  const vals = data.map(d => d[key] || 0);
-  const max = Math.max(...vals, 1);
-  const barW = Math.max(2, (w - data.length * 2) / data.length);
-  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
-    ${vals.map((v, i) => {
-      const bh = (v / max) * (h - 10);
-      return `<rect x="${i * (barW + 2)}" y="${h - bh}" width="${barW}" height="${bh}" rx="2" fill="${color}" opacity="0.7"><title>${data[i].date}: ${key === 'cost' ? fmtMoney(v) : v}</title></rect>`;
-    }).join('')}
-  </svg>`;
+  var vals = data.map(function(d) { return parseFloat(d[key]) || 0; });
+  var max = Math.max.apply(null, vals.concat([1]));
+  var barW = Math.max(2, (w - data.length * 2) / data.length);
+  return '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">' +
+    vals.map(function(v, i) {
+      var bh = (v / max) * (h - 10);
+      var dl = data[i].Date || '';
+      return '<rect x="' + (i * (barW + 2)) + '" y="' + (h - bh) + '" width="' + barW + '" height="' + bh + '" rx="2" fill="' + color + '" opacity="0.7"><title>' + dl + ': ' + (key === 'Cost' ? fmtMoney(v) : v) + '</title></rect>';
+    }).join('') + '</svg>';
 }
 
-function render() {
-  const app = document.getElementById('app');
-
-  // Aggregate totals
-  let totalClicks = 0, totalImpr = 0, totalCost = 0, totalConv = 0;
-  campaignData.forEach(r => {
-    const m = r.metrics || {};
-    totalClicks += m.clicks || 0;
-    totalImpr += m.impressions || 0;
-    totalCost += micro(m.costMicros);
-    totalConv += m.conversions || 0;
-  });
-  const avgCpc = totalClicks > 0 ? totalCost / totalClicks : 0;
-  const ctr = totalImpr > 0 ? totalClicks / totalImpr : 0;
-  const costPerConv = totalConv > 0 ? totalCost / totalConv : 0;
-
-  // Daily chart data
-  const daily = dailyData.map(r => ({
-    date: r.segments?.date || '',
-    clicks: r.metrics?.clicks || 0,
-    impressions: r.metrics?.impressions || 0,
-    cost: micro(r.metrics?.costMicros),
-    conversions: r.metrics?.conversions || 0
-  }));
-
-  // Keyword data
-  const keywords = keywordData.map(r => ({
-    keyword: r.adGroupCriterion?.keyword?.text || '—',
-    matchType: (r.adGroupCriterion?.keyword?.matchType || '').replace('_', ' '),
-    clicks: r.metrics?.clicks || 0,
-    impressions: r.metrics?.impressions || 0,
-    cost: micro(r.metrics?.costMicros),
-    ctr: r.metrics?.ctr || 0,
-    avgCpc: micro(r.metrics?.averageCpc),
-    conversions: r.metrics?.conversions || 0
-  }));
-  const maxKwCost = keywords[0]?.cost || 1;
-
-  const periodLabel = currentPeriod.replace('LAST_', 'Last ').replace('_DAYS', ' Days').replace('THIS_MONTH', 'This Month');
-
-  const periodBtn = (val, label) => `<button class="period-btn${currentPeriod===val?' active':''}" data-period="${val}">${label}</button>`;
-
-  app.innerHTML = `
-    <div class="header">
-      <div class="header-left">
-        <h1>Google Ads — LSA</h1>
-        <p>${ACCOUNT_NAME} · ${periodLabel}</p>
-      </div>
-      <div class="header-right">
-        <span class="badge badge-blue">ID: ${CUSTOMER_ID.replace(/(\d{3})(\d{3})(\d{4})/, '$1-$2-$3')}</span>
-        <span class="badge badge-gray">Auto-refreshing</span>
-      </div>
-    </div>
-
-    <div class="period-btns">
-      ${periodBtn('LAST_7_DAYS', '7 Days')}
-      ${periodBtn('LAST_14_DAYS', '14 Days')}
-      ${periodBtn('LAST_30_DAYS', '30 Days')}
-      ${periodBtn('THIS_MONTH', 'This Month')}
-      ${periodBtn('LAST_MONTH', 'Last Month')}
-    </div>
-
-    <div class="kpi-row">
-      <div class="kpi-card main">
-        <div class="kpi-icon" style="background:rgba(255,255,255,0.2);color:#fff;">💰</div>
-        <div class="kpi-label">Total Spend</div>
-        <div class="kpi-value">${fmtMoney(totalCost)}</div>
-        <div class="kpi-sub">${periodLabel}</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background:var(--accent-light);color:var(--accent);">👆</div>
-        <div class="kpi-label">Clicks</div>
-        <div class="kpi-value">${totalClicks.toLocaleString()}</div>
-        <div class="kpi-sub">CTR: ${fmtPct(ctr)}</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background:var(--green-light);color:var(--green);">👁</div>
-        <div class="kpi-label">Impressions</div>
-        <div class="kpi-value">${totalImpr.toLocaleString()}</div>
-        <div class="kpi-sub">${periodLabel}</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background:var(--amber-light);color:var(--amber);">📊</div>
-        <div class="kpi-label">Avg CPC</div>
-        <div class="kpi-value">${fmtMoney(avgCpc)}</div>
-        <div class="kpi-sub">cost per click</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon" style="background:var(--green-light);color:var(--green);">🎯</div>
-        <div class="kpi-label">Conversions</div>
-        <div class="kpi-value">${totalConv.toLocaleString()}</div>
-        <div class="kpi-sub">${totalConv > 0 ? fmtMoney(costPerConv) + ' / conv' : 'no conversions yet'}</div>
-      </div>
-    </div>
-
-    <div class="two-col">
-      <div class="panel">
-        <h3>Daily Clicks</h3>
-        <div class="chart-container">
-          ${sparklineSVG(daily, 'clicks', 500, 160, '#4285f4')}
-        </div>
-      </div>
-      <div class="panel">
-        <h3>Daily Spend</h3>
-        <div class="chart-container">
-          ${sparklineSVG(daily, 'cost', 500, 160, '#34a853')}
-        </div>
-      </div>
-    </div>
-
-    <div class="table-wrap">
-      <div class="table-title" style="padding-bottom:12px;">Campaigns</div>
-      <table>
-        <thead>
-          <tr><th>Campaign</th><th>Status</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Avg CPC</th><th>Cost</th><th>Conv.</th></tr>
-        </thead>
-        <tbody>
-          ${campaignData.map(r => {
-            const c = r.campaign || {};
-            const m = r.metrics || {};
-            return `<tr>
-              <td style="font-weight:600;">${c.name || '—'}</td>
-              <td><span class="status-dot ${statusClass(c.status)}"></span>${statusName(c.status)}</td>
-              <td>${(m.clicks||0).toLocaleString()}</td>
-              <td>${(m.impressions||0).toLocaleString()}</td>
-              <td>${fmtPct(m.ctr||0)}</td>
-              <td>${fmtMoney(micro(m.averageCpc))}</td>
-              <td style="font-weight:700;">${fmtMoney(micro(m.costMicros))}</td>
-              <td>${(m.conversions||0).toLocaleString()}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="table-wrap">
-      <div class="table-title">Top Keywords</div>
-      <div style="padding:0 16px 16px;">
-        ${keywords.map(k => `
-          <div class="h-bar">
-            <div class="h-bar-top">
-              <span class="h-bar-label">${k.keyword} <span style="color:var(--text3);font-weight:400;font-size:11px;">${k.matchType}</span></span>
-              <span class="h-bar-val">${fmtMoney(k.cost)} · ${k.clicks} clicks · ${fmtPct(k.ctr)}</span>
-            </div>
-            <div class="h-bar-track">
-              <div class="h-bar-fill" data-width="${Math.round(k.cost/maxKwCost*100)}" style="background:var(--accent);"></div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `;
-
-  // Animate bars
-  setTimeout(() => {
-    document.querySelectorAll('.h-bar-fill').forEach(bar => {
-      bar.style.width = bar.dataset.width + '%';
-    });
-  }, 50);
-
-  // Period buttons
-  document.querySelectorAll('.period-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const period = btn.dataset.period;
-      if (period === currentPeriod) return;
-      currentPeriod = period;
-      app.innerHTML = '<div class="loading-screen"><div class="spinner"></div><div class="loading-text">Loading data...</div></div>';
-      try { await fetchAllData(); render(); }
-      catch(e) { app.innerHTML = '<div class="error-screen">Error: ' + e.message + '</div>'; }
-    });
-  });
+function statusClass(s) {
+  s = (s || '').toLowerCase();
+  if (s === 'enabled') return 'status-active';
+  if (s === 'paused') return 'status-paused';
+  return 'status-removed';
 }
 
-// INIT
-(async () => {
+function statusLabel(s) {
+  s = (s || '').toLowerCase();
+  if (s === 'enabled') return 'Active';
+  if (s === 'paused') return 'Paused';
+  if (s === 'removed') return 'Removed';
+  return s;
+}
+
+async function init() {
+  var app = document.getElementById('app');
   try {
-    await fetchAllData();
-    render();
+    var results = await Promise.all([
+      fetchSheet('campaigns'),
+      fetchSheet('daily'),
+      fetchSheet('keywords'),
+      fetchSheet('meta')
+    ]);
+    var campaigns = results[0];
+    var daily = results[1];
+    var keywords = results[2];
+    var meta = results[3];
+
+    var totalClicks = 0, totalImpr = 0, totalCost = 0, totalConv = 0;
+    campaigns.forEach(function(c) {
+      totalClicks += parseInt(c.Clicks) || 0;
+      totalImpr += parseInt(c.Impressions) || 0;
+      totalCost += parseFloat(c.Cost) || 0;
+      totalConv += parseFloat(c.Conversions) || 0;
+    });
+    var avgCpc = totalClicks > 0 ? totalCost / totalClicks : 0;
+    var ctr = totalImpr > 0 ? (totalClicks / totalImpr * 100).toFixed(2) : '0.00';
+    var costPerConv = totalConv > 0 ? totalCost / totalConv : 0;
+
+    var lastUpdated = meta.length > 0 ? (meta[0]['Last Updated'] || '') : '';
+    var updatedStr = lastUpdated ? new Date(lastUpdated).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'auto-refresh daily';
+
+    var maxKwCost = keywords.length > 0 ? Math.max.apply(null, keywords.map(function(k) { return parseFloat(k.Cost) || 0; }).concat([1])) : 1;
+
+    var html = '';
+    html += '<div class="header"><div class="header-left"><h1>Google Ads \u2014 LSA</h1>';
+    html += '<p>' + ACCOUNT_NAME + ' \u00b7 Last 30 Days</p></div>';
+    html += '<div class="header-right"><span class="badge badge-blue">ID: 227-783-1466</span>';
+    html += '<span class="badge badge-gray">Updated ' + updatedStr + '</span></div></div>';
+
+    html += '<div class="kpi-row">';
+    html += '<div class="kpi-card main"><div class="kpi-icon" style="background:rgba(255,255,255,0.2);color:#fff;">\uD83D\uDCB0</div>';
+    html += '<div class="kpi-label">Total Spend</div><div class="kpi-value">' + fmtMoney(totalCost) + '</div>';
+    html += '<div class="kpi-sub">Last 30 Days</div></div>';
+
+    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--accent-light);color:var(--accent);">\uD83D\uDC46</div>';
+    html += '<div class="kpi-label">Clicks</div><div class="kpi-value">' + totalClicks.toLocaleString() + '</div>';
+    html += '<div class="kpi-sub">CTR: ' + ctr + '%</div></div>';
+
+    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--green-light);color:var(--green);">\uD83D\uDC41</div>';
+    html += '<div class="kpi-label">Impressions</div><div class="kpi-value">' + totalImpr.toLocaleString() + '</div>';
+    html += '<div class="kpi-sub">Last 30 Days</div></div>';
+
+    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--amber-light);color:var(--amber);">\uD83D\uDCCA</div>';
+    html += '<div class="kpi-label">Avg CPC</div><div class="kpi-value">' + fmtMoney(avgCpc) + '</div>';
+    html += '<div class="kpi-sub">cost per click</div></div>';
+
+    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--green-light);color:var(--green);">\uD83C\uDFAF</div>';
+    html += '<div class="kpi-label">Conversions</div><div class="kpi-value">' + totalConv.toLocaleString() + '</div>';
+    html += '<div class="kpi-sub">' + (totalConv > 0 ? fmtMoney(costPerConv) + ' / conv' : 'tracking') + '</div></div>';
+    html += '</div>';
+
+    html += '<div class="two-col"><div class="panel"><h3>Daily Clicks</h3><div class="chart-container">';
+    html += sparklineSVG(daily, 'Clicks', 500, 160, '#4285f4') + '</div></div>';
+    html += '<div class="panel"><h3>Daily Spend</h3><div class="chart-container">';
+    html += sparklineSVG(daily, 'Cost', 500, 160, '#34a853') + '</div></div></div>';
+
+    html += '<div class="two-col"><div class="panel"><h3>Daily Conversions</h3><div class="chart-container">';
+    html += sparklineSVG(daily, 'Conversions', 500, 160, '#fbbc04') + '</div></div>';
+    html += '<div class="panel"><h3>Daily Impressions</h3><div class="chart-container">';
+    html += sparklineSVG(daily, 'Impressions', 500, 160, '#ea4335') + '</div></div></div>';
+
+    html += '<div class="table-wrap"><div class="table-title">Campaigns</div><table><thead><tr>';
+    html += '<th>Campaign</th><th>Status</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Avg CPC</th><th>Cost</th><th>Conv.</th>';
+    html += '</tr></thead><tbody>';
+    campaigns.forEach(function(c) {
+      html += '<tr><td style="font-weight:600;">' + (c.Campaign || '\u2014') + '</td>';
+      html += '<td><span class="status-dot ' + statusClass(c.Status) + '"></span>' + statusLabel(c.Status) + '</td>';
+      html += '<td>' + (parseInt(c.Clicks || 0)).toLocaleString() + '</td>';
+      html += '<td>' + (parseInt(c.Impressions || 0)).toLocaleString() + '</td>';
+      html += '<td>' + (c.CTR || '0%') + '</td>';
+      html += '<td>' + fmtMoney(c.AvgCPC) + '</td>';
+      html += '<td style="font-weight:700;">' + fmtMoney(c.Cost) + '</td>';
+      html += '<td>' + (parseFloat(c.Conversions || 0)).toLocaleString() + '</td></tr>';
+    });
+    html += '</tbody></table></div>';
+
+    if (keywords.length > 0) {
+      html += '<div class="table-wrap"><div class="table-title">Top Keywords</div><div style="padding:0 16px 16px;">';
+      keywords.forEach(function(k) {
+        var kwCost = parseFloat(k.Cost) || 0;
+        html += '<div class="h-bar"><div class="h-bar-top">';
+        html += '<span class="h-bar-label">' + (k.Keyword || '\u2014') + '</span>';
+        html += '<span class="h-bar-val">' + fmtMoney(kwCost) + ' \u00b7 ' + (parseInt(k.Clicks || 0)) + ' clicks \u00b7 ' + (k.CTR || '0%') + '</span>';
+        html += '</div><div class="h-bar-track">';
+        html += '<div class="h-bar-fill" data-width="' + Math.round(kwCost / maxKwCost * 100) + '" style="background:var(--accent);"></div>';
+        html += '</div></div>';
+      });
+      html += '</div></div>';
+    }
+
+    app.innerHTML = html;
+
+    setTimeout(function() {
+      document.querySelectorAll('.h-bar-fill').forEach(function(bar) {
+        bar.style.width = bar.dataset.width + '%';
+      });
+    }, 50);
+
   } catch(e) {
-    document.getElementById('app').innerHTML = '<div class="error-screen">Failed to load Google Ads data.<br><small>' + e.message + '</small></div>';
+    app.innerHTML = '<div class="error-screen">Failed to load data.<br><small>' + e.message + '</small></div>';
     console.error(e);
   }
-})();
+}
+
+init();
 </script>
 </body>
 </html>
