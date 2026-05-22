@@ -35,15 +35,8 @@
   .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
   .panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
   .panel h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
-  .h-bar { margin-bottom: 12px; }
-  .h-bar:last-child { margin-bottom: 0; }
-  .h-bar-top { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
-  .h-bar-label { font-weight: 600; color: var(--text); }
-  .h-bar-val { font-weight: 700; color: var(--text2); }
-  .h-bar-track { background: #f0f2f5; border-radius: 6px; height: 20px; overflow: hidden; }
-  .h-bar-fill { height: 100%; border-radius: 6px; transition: width 0.8s cubic-bezier(0.22,1,0.36,1); width: 0; }
-  .chart-container { width: 100%; height: 160px; }
-  .chart-container svg { width: 100%; height: 100%; }
+  .chart-container { width: 100%; height: 220px; }
+  .chart-container svg { width: 100%; height: 100%; overflow: visible; }
   .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 20px; }
   .table-title { padding: 16px 16px 12px; font-size: 14px; font-weight: 700; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -56,11 +49,16 @@
   .status-active { background: var(--green); }
   .status-paused { background: var(--amber); }
   .status-removed { background: var(--red); }
+  .kw-table td { font-size: 12px; padding: 8px 12px; }
+  .kw-table .kw-name { font-weight: 600; }
+  .kw-table .kw-bar { height: 4px; border-radius: 2px; background: #f0f2f5; position: relative; min-width: 60px; }
+  .kw-table .kw-bar-fill { height: 100%; border-radius: 2px; background: var(--accent); transition: width 0.8s ease; }
   .loading-screen { display: flex; flex-direction: column; align-items: center; padding: 80px; }
   .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 14px; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-text { font-size: 13px; color: var(--text3); }
   .error-screen { text-align: center; padding: 60px; color: var(--red); }
+  .no-data { text-align: center; padding: 30px; color: var(--text3); font-size: 13px; }
   @media (max-width: 900px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } .two-col { grid-template-columns: 1fr; } body { padding: 16px; } }
 </style>
 </head>
@@ -72,21 +70,21 @@
   </div>
 </div>
 <script>
-const SHEET_ID = '1ep4N3SgDm8hhdiV9BALOPGxjUemCeLf5Ct8i-Hvem8g';
-const ACCOUNT_NAME = 'QualityPRO LSA';
+var SHEET_ID = '1ep4N3SgDm8hhdiV9BALOPGxjUemCeLf5Ct8i-Hvem8g';
+var ACCOUNT_NAME = 'QualityPRO LSA';
 
-async function fetchSheet(sheetName) {
-  const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(sheetName);
-  const resp = await fetch(url);
-  const text = await resp.text();
-  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/)[1]);
-  const cols = json.table.cols.map(function(c) { return c.label; });
-  return json.table.rows.map(function(r) {
-    var obj = {};
-    r.c.forEach(function(cell, i) {
-      obj[cols[i]] = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : (cell.f || '')) : '';
+function fetchSheet(sheetName) {
+  var url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(sheetName);
+  return fetch(url).then(function(r) { return r.text(); }).then(function(text) {
+    var json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/)[1]);
+    var cols = json.table.cols.map(function(c) { return c.label; });
+    return json.table.rows.map(function(r) {
+      var obj = {};
+      r.c.forEach(function(cell, i) {
+        obj[cols[i]] = cell ? (cell.v !== null && cell.v !== undefined ? cell.v : (cell.f || '')) : '';
+      });
+      return obj;
     });
-    return obj;
   });
 }
 
@@ -95,17 +93,62 @@ function fmtMoney(v) {
   return '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function sparklineSVG(data, key, w, h, color) {
-  if (!data.length) return '';
+function fmtDate(d) {
+  if (!d) return '';
+  var parts = d.split('-');
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[parseInt(parts[1])-1] + ' ' + parseInt(parts[2]);
+}
+
+function chartSVG(data, key, w, h, color) {
+  if (!data.length) return '<div class="no-data">No data</div>';
   var vals = data.map(function(d) { return parseFloat(d[key]) || 0; });
   var max = Math.max.apply(null, vals.concat([1]));
-  var barW = Math.max(2, (w - data.length * 2) / data.length);
-  return '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">' +
-    vals.map(function(v, i) {
-      var bh = (v / max) * (h - 10);
-      var dl = data[i].Date || '';
-      return '<rect x="' + (i * (barW + 2)) + '" y="' + (h - bh) + '" width="' + barW + '" height="' + bh + '" rx="2" fill="' + color + '" opacity="0.7"><title>' + dl + ': ' + (key === 'Cost' ? fmtMoney(v) : v) + '</title></rect>';
-    }).join('') + '</svg>';
+  var padTop = 25, padBot = 30, padLeft = 0;
+  var chartH = h - padTop - padBot;
+  var gap = 3;
+  var barW = Math.max(6, (w - padLeft - data.length * gap) / data.length);
+  
+  var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="http://www.w3.org/2000/svg" style="font-family:Plus Jakarta Sans,sans-serif">';
+  
+  // Horizontal grid lines with values
+  for (var g = 0; g <= 4; g++) {
+    var gy = padTop + (chartH / 4) * g;
+    var gval = max - (max / 4) * g;
+    svg += '<line x1="' + padLeft + '" y1="' + gy + '" x2="' + w + '" y2="' + gy + '" stroke="#f0f2f5" stroke-width="0.5"/>';
+    if (g === 0 || g === 2 || g === 4) {
+      var label = key === 'Cost' ? '$' + Math.round(gval) : Math.round(gval);
+      svg += '<text x="' + (padLeft + 4) + '" y="' + (gy - 4) + '" font-size="7" fill="#bbb">' + label + '</text>';
+    }
+  }
+  
+  // Bars
+  vals.forEach(function(v, i) {
+    var bh = max > 0 ? (v / max) * chartH : 0;
+    if (v > 0 && bh < 2) bh = 2;
+    var x = padLeft + i * (barW + gap);
+    var y = padTop + chartH - bh;
+    
+    svg += '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + bh + '" rx="2" fill="' + color + '" opacity="0.8">';
+    svg += '<title>' + fmtDate(data[i].Date) + '\n' + (key === 'Cost' ? fmtMoney(v) : v + ' ' + key.toLowerCase()) + '</title></rect>';
+    
+    // Value on top every 4th bar
+    if (i % 4 === 0 && v > 0) {
+      var vlabel = key === 'Cost' ? '$' + Math.round(v) : v;
+      svg += '<text x="' + (x + barW/2) + '" y="' + (y - 4) + '" text-anchor="middle" font-size="7" font-weight="700" fill="' + color + '">' + vlabel + '</text>';
+    }
+    
+    // Date labels
+    if (i % 5 === 0 || i === data.length - 1) {
+      svg += '<text x="' + (x + barW/2) + '" y="' + (h - 8) + '" text-anchor="middle" font-size="7" fill="#9aa3b4">' + fmtDate(data[i].Date) + '</text>';
+    }
+  });
+  
+  // Bottom axis line
+  svg += '<line x1="' + padLeft + '" y1="' + (padTop + chartH) + '" x2="' + w + '" y2="' + (padTop + chartH) + '" stroke="#e8ecf2" stroke-width="1"/>';
+  
+  svg += '</svg>';
+  return svg;
 }
 
 function statusClass(s) {
@@ -123,15 +166,14 @@ function statusLabel(s) {
   return s;
 }
 
-async function init() {
+function init() {
   var app = document.getElementById('app');
-  try {
-    var results = await Promise.all([
-      fetchSheet('campaigns'),
-      fetchSheet('daily'),
-      fetchSheet('keywords'),
-      fetchSheet('meta')
-    ]);
+  Promise.all([
+    fetchSheet('campaigns'),
+    fetchSheet('daily'),
+    fetchSheet('keywords'),
+    fetchSheet('meta')
+  ]).then(function(results) {
     var campaigns = results[0];
     var daily = results[1];
     var keywords = results[2];
@@ -149,89 +191,108 @@ async function init() {
     var costPerConv = totalConv > 0 ? totalCost / totalConv : 0;
 
     var lastUpdated = meta.length > 0 ? (meta[0]['Last Updated'] || '') : '';
-    var updatedStr = lastUpdated ? new Date(lastUpdated).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'auto-refresh daily';
+    var updatedStr = lastUpdated ? new Date(lastUpdated).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'auto-refresh daily';
 
-    var maxKwCost = keywords.length > 0 ? Math.max.apply(null, keywords.map(function(k) { return parseFloat(k.Cost) || 0; }).concat([1])) : 1;
+    // Filter keywords with clicks > 0
+    var activeKw = keywords.filter(function(k) { return parseInt(k.Clicks) > 0; });
+    var maxKwClicks = activeKw.length > 0 ? Math.max.apply(null, activeKw.map(function(k) { return parseInt(k.Clicks) || 0; }).concat([1])) : 1;
 
     var html = '';
+    
+    // Header
     html += '<div class="header"><div class="header-left"><h1>Google Ads \u2014 LSA</h1>';
     html += '<p>' + ACCOUNT_NAME + ' \u00b7 Last 30 Days</p></div>';
     html += '<div class="header-right"><span class="badge badge-blue">ID: 227-783-1466</span>';
     html += '<span class="badge badge-gray">Updated ' + updatedStr + '</span></div></div>';
 
+    // KPI Cards
     html += '<div class="kpi-row">';
-    html += '<div class="kpi-card main"><div class="kpi-icon" style="background:rgba(255,255,255,0.2);color:#fff;">\uD83D\uDCB0</div>';
+    html += '<div class="kpi-card main"><div class="kpi-icon" style="background:rgba(255,255,255,0.2);color:#fff">\uD83D\uDCB0</div>';
     html += '<div class="kpi-label">Total Spend</div><div class="kpi-value">' + fmtMoney(totalCost) + '</div>';
     html += '<div class="kpi-sub">Last 30 Days</div></div>';
-
-    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--accent-light);color:var(--accent);">\uD83D\uDC46</div>';
+    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--accent-light);color:var(--accent)">\uD83D\uDC46</div>';
     html += '<div class="kpi-label">Clicks</div><div class="kpi-value">' + totalClicks.toLocaleString() + '</div>';
     html += '<div class="kpi-sub">CTR: ' + ctr + '%</div></div>';
-
-    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--green-light);color:var(--green);">\uD83D\uDC41</div>';
+    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--green-light);color:var(--green)">\uD83D\uDC41</div>';
     html += '<div class="kpi-label">Impressions</div><div class="kpi-value">' + totalImpr.toLocaleString() + '</div>';
     html += '<div class="kpi-sub">Last 30 Days</div></div>';
-
-    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--amber-light);color:var(--amber);">\uD83D\uDCCA</div>';
+    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--amber-light);color:var(--amber)">\uD83D\uDCCA</div>';
     html += '<div class="kpi-label">Avg CPC</div><div class="kpi-value">' + fmtMoney(avgCpc) + '</div>';
     html += '<div class="kpi-sub">cost per click</div></div>';
-
-    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--green-light);color:var(--green);">\uD83C\uDFAF</div>';
+    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--green-light);color:var(--green)">\uD83C\uDFAF</div>';
     html += '<div class="kpi-label">Conversions</div><div class="kpi-value">' + totalConv.toLocaleString() + '</div>';
     html += '<div class="kpi-sub">' + (totalConv > 0 ? fmtMoney(costPerConv) + ' / conv' : 'tracking') + '</div></div>';
     html += '</div>';
 
-    html += '<div class="two-col"><div class="panel"><h3>Daily Clicks</h3><div class="chart-container">';
-    html += sparklineSVG(daily, 'Clicks', 500, 160, '#4285f4') + '</div></div>';
-    html += '<div class="panel"><h3>Daily Spend</h3><div class="chart-container">';
-    html += sparklineSVG(daily, 'Cost', 500, 160, '#34a853') + '</div></div></div>';
+    // Daily Charts - Clicks & Spend
+    html += '<div class="two-col">';
+    html += '<div class="panel"><h3>Daily Clicks</h3><div class="chart-container">' + chartSVG(daily, 'Clicks', 500, 220, '#4285f4') + '</div></div>';
+    html += '<div class="panel"><h3>Daily Spend</h3><div class="chart-container">' + chartSVG(daily, 'Cost', 500, 220, '#34a853') + '</div></div>';
+    html += '</div>';
 
-    html += '<div class="two-col"><div class="panel"><h3>Daily Conversions</h3><div class="chart-container">';
-    html += sparklineSVG(daily, 'Conversions', 500, 160, '#fbbc04') + '</div></div>';
-    html += '<div class="panel"><h3>Daily Impressions</h3><div class="chart-container">';
-    html += sparklineSVG(daily, 'Impressions', 500, 160, '#ea4335') + '</div></div></div>';
+    // Daily Charts - Conversions & Impressions
+    html += '<div class="two-col">';
+    html += '<div class="panel"><h3>Daily Conversions</h3><div class="chart-container">' + chartSVG(daily, 'Conversions', 500, 220, '#fbbc04') + '</div></div>';
+    html += '<div class="panel"><h3>Daily Impressions</h3><div class="chart-container">' + chartSVG(daily, 'Impressions', 500, 220, '#ea4335') + '</div></div>';
+    html += '</div>';
 
-    html += '<div class="table-wrap"><div class="table-title">Campaigns</div><table><thead><tr>';
-    html += '<th>Campaign</th><th>Status</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Avg CPC</th><th>Cost</th><th>Conv.</th>';
-    html += '</tr></thead><tbody>';
+    // Campaigns Table
+    html += '<div class="table-wrap"><div class="table-title">Campaigns</div>';
+    html += '<table><thead><tr><th>Campaign</th><th>Status</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Avg CPC</th><th>Cost</th><th>Conv.</th></tr></thead><tbody>';
     campaigns.forEach(function(c) {
-      html += '<tr><td style="font-weight:600;">' + (c.Campaign || '\u2014') + '</td>';
+      html += '<tr><td style="font-weight:600">' + (c.Campaign || '\u2014') + '</td>';
       html += '<td><span class="status-dot ' + statusClass(c.Status) + '"></span>' + statusLabel(c.Status) + '</td>';
       html += '<td>' + (parseInt(c.Clicks || 0)).toLocaleString() + '</td>';
       html += '<td>' + (parseInt(c.Impressions || 0)).toLocaleString() + '</td>';
       html += '<td>' + (c.CTR || '0%') + '</td>';
       html += '<td>' + fmtMoney(c.AvgCPC) + '</td>';
-      html += '<td style="font-weight:700;">' + fmtMoney(c.Cost) + '</td>';
+      html += '<td style="font-weight:700">' + fmtMoney(c.Cost) + '</td>';
       html += '<td>' + (parseFloat(c.Conversions || 0)).toLocaleString() + '</td></tr>';
     });
     html += '</tbody></table></div>';
 
-    if (keywords.length > 0) {
-      html += '<div class="table-wrap"><div class="table-title">Top Keywords</div><div style="padding:0 16px 16px;">';
-      keywords.forEach(function(k) {
-        var kwCost = parseFloat(k.Cost) || 0;
-        html += '<div class="h-bar"><div class="h-bar-top">';
-        html += '<span class="h-bar-label">' + (k.Keyword || '\u2014') + '</span>';
-        html += '<span class="h-bar-val">' + fmtMoney(kwCost) + ' \u00b7 ' + (parseInt(k.Clicks || 0)) + ' clicks \u00b7 ' + (k.CTR || '0%') + '</span>';
-        html += '</div><div class="h-bar-track">';
-        html += '<div class="h-bar-fill" data-width="' + Math.round(kwCost / maxKwCost * 100) + '" style="background:var(--accent);"></div>';
-        html += '</div></div>';
+    // Keywords - compact table with mini bars
+    if (activeKw.length > 0) {
+      html += '<div class="table-wrap"><div class="table-title">Top Search Queries (with clicks)</div>';
+      html += '<table class="kw-table"><thead><tr><th>Search Query</th><th>Clicks</th><th>Impr.</th><th>CTR</th><th>Cost</th><th style="width:100px"></th></tr></thead><tbody>';
+      activeKw.forEach(function(k) {
+        var clicks = parseInt(k.Clicks) || 0;
+        var pct = Math.round(clicks / maxKwClicks * 100);
+        html += '<tr><td class="kw-name">' + (k.Keyword || '\u2014') + '</td>';
+        html += '<td style="font-weight:700">' + clicks + '</td>';
+        html += '<td>' + (parseInt(k.Impressions) || 0) + '</td>';
+        html += '<td>' + (k.CTR || '0%') + '</td>';
+        html += '<td style="font-weight:600">' + fmtMoney(k.Cost) + '</td>';
+        html += '<td><div class="kw-bar"><div class="kw-bar-fill" data-width="' + pct + '"></div></div></td></tr>';
       });
-      html += '</div></div>';
+      html += '</tbody></table></div>';
+    } else if (keywords.length > 0) {
+      // Show top impressions if no clicks
+      var topImpr = keywords.slice(0, 10);
+      html += '<div class="table-wrap"><div class="table-title">Top Search Queries (by impressions)</div>';
+      html += '<table class="kw-table"><thead><tr><th>Search Query</th><th>Impressions</th><th>Clicks</th><th>CTR</th></tr></thead><tbody>';
+      topImpr.forEach(function(k) {
+        html += '<tr><td class="kw-name">' + (k.Keyword || '\u2014') + '</td>';
+        html += '<td>' + (parseInt(k.Impressions) || 0) + '</td>';
+        html += '<td>' + (parseInt(k.Clicks) || 0) + '</td>';
+        html += '<td>' + (k.CTR || '0%') + '</td></tr>';
+      });
+      html += '</tbody></table></div>';
     }
 
     app.innerHTML = html;
 
+    // Animate keyword bars
     setTimeout(function() {
-      document.querySelectorAll('.h-bar-fill').forEach(function(bar) {
+      document.querySelectorAll('.kw-bar-fill').forEach(function(bar) {
         bar.style.width = bar.dataset.width + '%';
       });
     }, 50);
 
-  } catch(e) {
+  }).catch(function(e) {
     app.innerHTML = '<div class="error-screen">Failed to load data.<br><small>' + e.message + '</small></div>';
     console.error(e);
-  }
+  });
 }
 
 init();
