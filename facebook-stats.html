@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f8f9fb; --card: #ffffff; --text: #1b1f27; --text2: #5f6980; --text3: #9aa3b4;
+    --border: #e8ecf2; --accent: #1877f2; --accent-light: #e7f0ff; --green: #34a853;
+    --green-light: #e6f4ea; --red: #ea4335; --amber: #fbbc04; --amber-light: #fef7e0;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-lg: 0 4px 16px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 24px; -webkit-font-smoothing: antialiased; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+  .header-left h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
+  .header-left p { font-size: 13px; color: var(--text3); margin-top: 3px; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .badge { font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px; white-space: nowrap; }
+  .badge-fb { background: var(--accent-light); color: var(--accent); }
+  .badge-gray { background: var(--card); border: 1px solid var(--border); color: var(--text3); font-weight: 500; font-size: 11px; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); transition: transform 0.15s, box-shadow 0.15s; }
+  .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .kpi-card .kpi-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-bottom: 12px; }
+  .kpi-card .kpi-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi-card .kpi-value { font-size: 28px; font-weight: 800; margin-top: 4px; line-height: 1; }
+  .kpi-card .kpi-sub { font-size: 12px; color: var(--text3); margin-top: 6px; }
+  .kpi-card.main { background: var(--accent); border-color: var(--accent); }
+  .kpi-card.main .kpi-label, .kpi-card.main .kpi-value, .kpi-card.main .kpi-sub { color: #fff; }
+  .kpi-card.main .kpi-icon { background: rgba(255,255,255,0.2); color: #fff; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  .panel h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+  .chart-container { width: 100%; height: 200px; }
+  .chart-container svg { width: 100%; height: 100%; overflow: visible; }
+
+  .posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .post-card { background: #f9fafb; border-radius: 8px; padding: 14px; border: 1px solid var(--border); }
+  .post-card .post-date { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
+  .post-card .post-text { font-size: 12px; color: var(--text); line-height: 1.4; max-height: 48px; overflow: hidden; margin-bottom: 8px; }
+  .post-card .post-stats { display: flex; gap: 12px; font-size: 11px; color: var(--text2); font-weight: 600; }
+
+  .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 20px; }
+  .table-title { padding: 16px 16px 12px; font-size: 14px; font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: #f9fafb; border-bottom: 1px solid var(--border); padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+  tbody tr { border-bottom: 1px solid #f3f4f6; }
+  tbody tr:hover { background: #f8f9ff; }
+  td { padding: 10px 14px; }
+
+  .loading-screen { display: flex; flex-direction: column; align-items: center; padding: 80px; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin-bottom: 14px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-size: 13px; color: var(--text3); }
+  .error-screen { text-align: center; padding: 60px; color: var(--red); font-size: 14px; }
+
+  @media (max-width: 900px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } .two-col { grid-template-columns: 1fr; } .posts-grid { grid-template-columns: 1fr; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="loading-screen">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading Facebook page data...</div>
+  </div>
+</div>
+<script>
+var ACCESS_TOKEN = 'EAAOCEmCZCGUgBRiCSjZBx7WCZCuPHhZAtQaNFegJ5ga0YChXVNSB3agnonpPDBI6Ize27ZCmojOIvEuWNSE0PBBTfzUAE9wvRvC5KOipOJzbTSKFNkYtS8ZAVBPSmwmMJZAdhY6gPRFDcDdsFsaZAPB8NXMEdH1uiN4ZANautQ3oO03UNogpiTVeCnRH9nMJZBx5uZBzRQHIwATUDLZB6gy7x73B2y4PaINEWNlrixvZBVxZADgNtMFFxREvHMxvNVMgNKptuNZAqzvwyuCX6toL3pHQL1bOtWEiKJvH2BGHIKffMZAsZASKrKt0VqGFUxMT6BODoV84Tq8tCIEsZBNDtgIYPfTWuqeMSJJwZDZD';
+var API = 'https://graph.facebook.com/v19.0';
+
+function fbFetch(endpoint) {
+  var sep = endpoint.indexOf('?') > -1 ? '&' : '?';
+  return fetch(API + endpoint + sep + 'access_token=' + ACCESS_TOKEN)
+    .then(function(r) { return r.json(); });
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  var dt = new Date(d);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[dt.getMonth()] + ' ' + dt.getDate();
+}
+
+function fmtNum(n) {
+  if (n >= 1000000) return (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  return String(n);
+}
+
+function chartSVG(data, w, h, color) {
+  if (!data.length) return '<div style="text-align:center;padding:30px;color:#9aa3b4;font-size:13px;">No data</div>';
+  var vals = data.map(function(d) { return d.value; });
+  var max = Math.max.apply(null, vals.concat([1]));
+  var padTop = 25, padBot = 30;
+  var chartH = h - padTop - padBot;
+  var gap = 3;
+  var barW = Math.max(6, (w - data.length * gap) / data.length);
+
+  var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" xmlns="http://www.w3.org/2000/svg" style="font-family:Plus Jakarta Sans,sans-serif">';
+
+  for (var g = 0; g <= 4; g++) {
+    var gy = padTop + (chartH / 4) * g;
+    svg += '<line x1="0" y1="' + gy + '" x2="' + w + '" y2="' + gy + '" stroke="#f0f2f5" stroke-width="0.5"/>';
+    if (g === 0 || g === 2 || g === 4) {
+      var gval = Math.round(max - (max / 4) * g);
+      svg += '<text x="4" y="' + (gy - 4) + '" font-size="7" fill="#bbb">' + fmtNum(gval) + '</text>';
+    }
+  }
+
+  vals.forEach(function(v, i) {
+    var bh = max > 0 ? (v / max) * chartH : 0;
+    if (v > 0 && bh < 2) bh = 2;
+    var x = i * (barW + gap);
+    var y = padTop + chartH - bh;
+    svg += '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + bh + '" rx="2" fill="' + color + '" opacity="0.8">';
+    svg += '<title>' + fmtDate(data[i].date) + ': ' + v + '</title></rect>';
+    if (i % 4 === 0 && v > 0) {
+      svg += '<text x="' + (x + barW/2) + '" y="' + (y - 4) + '" text-anchor="middle" font-size="7" font-weight="700" fill="' + color + '">' + fmtNum(v) + '</text>';
+    }
+    if (i % 5 === 0 || i === data.length - 1) {
+      svg += '<text x="' + (x + barW/2) + '" y="' + (h - 8) + '" text-anchor="middle" font-size="7" fill="#9aa3b4">' + fmtDate(data[i].date) + '</text>';
+    }
+  });
+
+  svg += '<line x1="0" y1="' + (padTop + chartH) + '" x2="' + w + '" y2="' + (padTop + chartH) + '" stroke="#e8ecf2" stroke-width="1"/>';
+  svg += '</svg>';
+  return svg;
+}
+
+function extractInsight(insights, name) {
+  if (!insights || !insights.data) return [];
+  var found = insights.data.filter(function(d) { return d.name === name; });
+  if (!found.length) return [];
+  return (found[0].values || []).map(function(v) {
+    return { date: v.end_time, value: v.value || 0 };
+  });
+}
+
+function sumInsight(arr) {
+  return arr.reduce(function(s, d) { return s + d.value; }, 0);
+}
+
+async function init() {
+  var app = document.getElementById('app');
+  try {
+    // Step 1: Get pages this token has access to
+    var pages = await fbFetch('/me/accounts?fields=id,name,access_token,fan_count,followers_count');
+    
+    if (!pages.data || !pages.data.length) {
+      // Maybe this IS a page token already
+      var me = await fbFetch('/me?fields=id,name,fan_count,followers_count,category');
+      if (me.id) {
+        pages = { data: [{ id: me.id, name: me.name, fan_count: me.fan_count, followers_count: me.followers_count, access_token: ACCESS_TOKEN }] };
+      } else {
+        throw new Error('No pages found. Token may be expired.');
+      }
+    }
+
+    var page = pages.data[0];
+    var pageId = page.id;
+    var pageName = page.name || 'Facebook Page';
+    var pageToken = page.access_token || ACCESS_TOKEN;
+    var fanCount = page.fan_count || 0;
+    var followerCount = page.followers_count || 0;
+
+    // Step 2: Get page insights (last 28 days)
+    var since = Math.floor(Date.now()/1000) - 28*86400;
+    var until = Math.floor(Date.now()/1000);
+    
+    var insightsUrl = '/' + pageId + '/insights?metric=page_impressions,page_engaged_users,page_post_engagements,page_views_total,page_fan_adds&period=day&since=' + since + '&until=' + until;
+    var insights = await fbFetch(insightsUrl);
+
+    var impressionsData = extractInsight(insights, 'page_impressions');
+    var engagedData = extractInsight(insights, 'page_engaged_users');
+    var engagementsData = extractInsight(insights, 'page_post_engagements');
+    var viewsData = extractInsight(insights, 'page_views_total');
+    var newFansData = extractInsight(insights, 'page_fan_adds');
+
+    var totalImpressions = sumInsight(impressionsData);
+    var totalEngaged = sumInsight(engagedData);
+    var totalEngagements = sumInsight(engagementsData);
+    var totalViews = sumInsight(viewsData);
+    var totalNewFans = sumInsight(newFansData);
+
+    // Step 3: Get recent posts
+    var postsResp = await fbFetch('/' + pageId + '/posts?fields=message,created_time,likes.summary(true),comments.summary(true),shares&limit=9');
+    var posts = (postsResp.data || []).map(function(p) {
+      return {
+        message: (p.message || '').substring(0, 120),
+        date: p.created_time,
+        likes: p.likes ? p.likes.summary.total_count : 0,
+        comments: p.comments ? p.comments.summary.total_count : 0,
+        shares: p.shares ? p.shares.count : 0
+      };
+    });
+
+    // Render
+    var html = '';
+
+    html += '<div class="header"><div class="header-left"><h1>Facebook Page Stats</h1>';
+    html += '<p>' + pageName + ' \u00b7 Last 28 Days</p></div>';
+    html += '<div class="header-right"><span class="badge badge-fb">\uD83D\uDC4D ' + fmtNum(fanCount) + ' likes</span>';
+    html += '<span class="badge badge-gray">' + fmtNum(followerCount) + ' followers</span></div></div>';
+
+    // KPIs
+    html += '<div class="kpi-row">';
+    html += '<div class="kpi-card main"><div class="kpi-icon" style="background:rgba(255,255,255,0.2);color:#fff">\uD83D\uDC41</div>';
+    html += '<div class="kpi-label">Page Impressions</div><div class="kpi-value">' + fmtNum(totalImpressions) + '</div>';
+    html += '<div class="kpi-sub">28 day total</div></div>';
+
+    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--accent-light);color:var(--accent)">\uD83D\uDC65</div>';
+    html += '<div class="kpi-label">Engaged Users</div><div class="kpi-value">' + fmtNum(totalEngaged) + '</div>';
+    html += '<div class="kpi-sub">unique users</div></div>';
+
+    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--green-light);color:var(--green)">\u2764\uFE0F</div>';
+    html += '<div class="kpi-label">Engagements</div><div class="kpi-value">' + fmtNum(totalEngagements) + '</div>';
+    html += '<div class="kpi-sub">likes, comments, shares</div></div>';
+
+    html += '<div class="kpi-card"><div class="kpi-icon" style="background:var(--amber-light);color:var(--amber)">\u2B50</div>';
+    html += '<div class="kpi-label">New Fans</div><div class="kpi-value">+' + fmtNum(totalNewFans) + '</div>';
+    html += '<div class="kpi-sub">28 day total</div></div>';
+    html += '</div>';
+
+    // Charts
+    html += '<div class="two-col">';
+    html += '<div class="panel"><h3>Daily Impressions</h3><div class="chart-container">' + chartSVG(impressionsData, 500, 200, '#1877f2') + '</div></div>';
+    html += '<div class="panel"><h3>Daily Engagements</h3><div class="chart-container">' + chartSVG(engagementsData, 500, 200, '#34a853') + '</div></div>';
+    html += '</div>';
+
+    html += '<div class="two-col">';
+    html += '<div class="panel"><h3>Daily Engaged Users</h3><div class="chart-container">' + chartSVG(engagedData, 500, 200, '#fbbc04') + '</div></div>';
+    html += '<div class="panel"><h3>Daily Page Views</h3><div class="chart-container">' + chartSVG(viewsData, 500, 200, '#ea4335') + '</div></div>';
+    html += '</div>';
+
+    // Recent Posts
+    if (posts.length > 0) {
+      html += '<div class="panel" style="margin-bottom:20px"><h3>Recent Posts (' + posts.length + ')</h3>';
+      html += '<div class="posts-grid">';
+      posts.forEach(function(p) {
+        html += '<div class="post-card">';
+        html += '<div class="post-date">' + fmtDate(p.date) + '</div>';
+        html += '<div class="post-text">' + (p.message || '<em>Photo/video post</em>') + '</div>';
+        html += '<div class="post-stats">';
+        html += '<span>\u2764\uFE0F ' + p.likes + '</span>';
+        html += '<span>\uD83D\uDCAC ' + p.comments + '</span>';
+        html += '<span>\uD83D\uDD01 ' + p.shares + '</span>';
+        html += '</div></div>';
+      });
+      html += '</div></div>';
+    }
+
+    app.innerHTML = html;
+
+  } catch(e) {
+    app.innerHTML = '<div class="error-screen">Failed to load Facebook data.<br><br><small>' + e.message + '</small><br><br><span style="color:#5f6980;font-size:12px;">If the token expired, generate a new one at<br>developers.facebook.com/tools/explorer/</span></div>';
+    console.error(e);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
